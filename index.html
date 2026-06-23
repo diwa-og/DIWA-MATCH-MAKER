@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Match Making</title>
+  <style>
+    /* --- CSS PREMIUM GLASS WORKFLOW DESIGN VARIABLES --- */
+    :root {
+      --bg: #030712;
+      --glass-base: rgba(15, 23, 42, 0.6);
+      --glass-surface: rgba(255, 255, 255, 0.04);
+      --glass-panel: rgba(255, 255, 255, 0.06);
+      --glass-border: rgba(255, 255, 255, 0.15);
+      --glass-border-glow: rgba(255, 255, 255, 0.25);
+      
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --line: rgba(255, 255, 255, 0.08);
+      
+      --primary: #38bdf8;
+      --primary-glow: rgba(56, 189, 248, 0.2);
+      --danger: #f43f5e;
+      --success: #4ade80;
+      --shadow: 0 30px 60px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+      --anim-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      height: 100%;
+    }
+
+    body {
+      min-height: 100%;
+      margin: 0;
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      background-color: var(--bg);
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* --- REAL STADIUM BACKDROP BACKGROUND --- */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      z-index: -1;
+      background: 
+        linear-gradient(180deg, rgba(3, 7, 18, 0.35) 0%, rgba(15, 23, 42, 0.65) 50%, rgba(3, 7, 18, 0.9) 100%),
+        url('photos/bg.jpg'); 
+      background-size: cover;
+      background-position: center 30%;
+    }
+
+    main {
+      position: relative;
+      margin: 0 auto;
+      max-width: 540px;
+      padding: 32px 12px 40px;
+    }
+
+    /* --- PREMIUM WIZARD STEP INDICATOR --- */
+    .step-indicator {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 0 4px 32px;
+      position: relative;
+    }
+
+    .step-indicator::before {
+      content: "";
+      position: absolute;
+      top: 50%; left: 0; right: 0;
+      height: 2px;
+      background: rgba(255, 255, 255, 0.12);
+      z-index: 1;
+      transform: translateY(-50%);
+    }
+
+    .step-dot {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: #111827;
+      border: 2px solid rgba(255, 255, 255, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--muted);
+      position: relative;
+      z-index: 2;
+      transition: var(--anim-smooth);
+    }
+
+    .step-dot.active {
+      background: #0f172a;
+      border-color: var(--primary);
+      color: var(--primary);
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
+    }
+
+    .step-dot.completed {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #030712;
+    }
+
+    /* --- STEP CONTAINER PANELS --- */
+    .step-container {
+      display: none;
+      animation: stepFadeIn 0.4s ease forwards;
+    }
+
+    .step-container.active {
+      display: block;
+    }
+
+    @keyframes stepFadeIn {
+      from { opacity: 0; transform: translate3d(15px, 0, 0); }
+      to { opacity: 1; transform: translate3d(0, 0, 0); }
+    }
+
+    .glass-panel {
+      background: var(--glass-base);
+      border: 1px solid var(--glass-border);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(30px) saturate(210%);
+      -webkit-backdrop-filter: blur(30px) saturate(210%);
+      padding: 24px 20px;
+      margin-bottom: 20px;
+    }
+
+    .hero {
+      padding: 10px 4px 20px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2.6rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      margin: 0 0 8px;
+      background: linear-gradient(180deg, #ffffff 0%, #cbd5e1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-copy {
+      color: #cbd5e1;
+      font-size: 1.05rem;
+      line-height: 1.5;
+      font-style: italic;
+      margin: 0;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+    }
+
+    .summary-grid div {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .summary-grid span {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--primary);
+    }
+
+    .with-action {
+      align-items: center;
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .section-title h2 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin: 0;
+    }
+
+    /* --- CONTROLS --- */
+    button {
+      width: 100%;
+      border: 1px solid var(--glass-border-glow);
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%);
+      color: #ffffff;
+      font-weight: 600;
+      font-size: 1rem;
+      padding: 15px;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      transition: var(--anim-smooth);
+    }
+
+    button:active {
+      transform: scale(0.97);
+    }
+
+    button.secondary {
+      background: rgba(255, 255, 255, 0.07);
+      color: var(--text);
+      border: 1px solid var(--glass-border);
+      padding: 8px 14px;
+      font-size: 0.85rem;
+      width: auto;
+      border-radius: 12px;
+    }
+
+    button.danger-outline {
+      background: rgba(244, 63, 94, 0.08);
+      color: #fda4af;
+      border: 1px solid rgba(244, 63, 94, 0.35);
+      padding: 14px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      width: 100%;
+      border-radius: 16px;
+    }
+
+    .button-flow-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .button-flow-group button.back-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: var(--glass-border);
+      color: var(--muted);
+      width: 35%;
+    }
+
+    /* --- RESPONSIVE TILED GRID LAYOUT --- */
+    .checklist-container {
+      max-height: 420px;
+      overflow-y: auto;
+      padding: 10px;
+      background: rgba(5, 10, 20, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 22px;
+      margin-bottom: 20px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+
+    .checklist-item {
+      position: relative;
+      display: block;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      padding: 24px 12px 20px;
+      cursor: pointer;
+      transition: var(--anim-smooth);
+    }
+
+    .checklist-item input[type="checkbox"] {
+      position: absolute;
+      opacity: 0;
+      width: 0; height: 0;
+    }
+
+    .checklist-item label {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      width: 100%;
+      cursor: pointer;
+      gap: 12px;
+    }
+
+    .player-info-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .player-avatar {
+      width: 56px; height: 56px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.35rem; font-weight: 700; text-transform: uppercase;
+      color: var(--text);
+      position: relative;
+      transition: var(--anim-smooth);
+      overflow: hidden; 
+    }
+
+    .avatar-initial {
+      position: relative;
+      z-index: 0;
+    }
+
+    .avatar-image {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      z-index: 1; 
+    }
+
+    .player-name-text {
+      font-size: 0.95rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: var(--text);
+      word-break: break-word;
+      max-width: 100%;
+    }
+
+    /* Card Selected States */
+    .checklist-item.selected-card {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.35);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .checklist-item.selected-card .player-avatar {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.4);
+    }
+
+    /* Premium Clean Check Mark Interface Hook */
+    .checklist-item::after {
+      content: "✓";
+      position: absolute;
+      bottom: 12px; right: 12px;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: var(--text);
+      font-size: 0.7rem;
+      font-weight: 900;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0;
+      transform: scale(0.6);
+      transition: var(--anim-smooth);
+    }
+
+    .checklist-item.selected-card::after {
+      opacity: 1;
+      transform: scale(1);
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    /* --- ACCORDION DETAILS PANELS --- */
+    .accordion-toggle {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 16px; padding: 14px 16px; font-size: 0.95rem;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .accordion-toggle::after { content: "▼"; font-size: 0.75rem; color: var(--muted); transition: transform 0.25s; }
+    .accordion-toggle.active::after { transform: rotate(180deg); }
+
+    .accordion-content {
+      max-height: 0; overflow: hidden;
+      transition: max-height 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      background: rgba(0, 0, 0, 0.2); border-radius: 0 0 16px 16px;
+    }
+    .accordion-content.open {
+      max-height: 240px; padding: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.07); border-top: none; margin-top: -2px;
+    }
+
+    .inline-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+    input {
+      border: 1px solid var(--glass-border); border-radius: 12px;
+      background: rgba(255, 255, 255, 0.04); color: var(--text); padding: 12px; font-size: 0.9rem; outline: none;
+    }
+
+    /* --- HIGH-CONTRAST CHOOSE TIER COMPONENT PANEL --- */
+    select {
+      border: 1px solid var(--glass-border); border-radius: 12px;
+      background: #10172a; color: #ffffff; padding: 12px; font-size: 0.9rem; outline: none;
+      transition: var(--anim-smooth);
+      cursor: pointer;
+    }
+    select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 12px var(--primary-glow);
+    }
+    select option {
+      background-color: #10172a;
+      color: #ffffff;
+    }
+
+    /* --- TEAM OUTPUT VIEWS --- */
+    .teams-grid { display: flex; flex-direction: column; gap: 16px; }
+    .team-heading h3 { font-size: 1.2rem; margin: 0; letter-spacing: -0.01em; }
+    .team-list { display: grid; gap: 10px; margin-top: 14px; }
+
+    .team-player {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 16px;
+      padding: 10px 14px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .team-player-left { display: flex; align-items: center; gap: 14px; }
+    .captain-highlight { color: var(--success) !important; font-weight: 600 !important; text-shadow: 0 0 10px rgba(74, 222, 128, 0.2); }
+
+    /* Creator Glow Highlights */
+    .checklist-item.creator-glow-row {
+      background: linear-gradient(135deg, rgba(233, 213, 255, 0.05) 0%, rgba(192, 132, 252, 0.08) 100%) !important;
+      border: 1px solid rgba(192, 132, 252, 0.25) !important;
+    }
+    .checklist-item.creator-glow-row.selected-card {
+      background: linear-gradient(135deg, rgba(233, 213, 255, 0.1) 0%, rgba(192, 132, 252, 0.15) 100%) !important;
+      border-color: rgba(192, 132, 252, 0.5) !important;
+    }
+    .checklist-item.creator-glow-row .player-avatar { border-color: rgba(192, 132, 252, 0.3); }
+    .checklist-item.creator-glow-row.selected-card .player-avatar { border-color: #c084fc; }
+
+    .team-player.creator-glow-row {
+      background: linear-gradient(135deg, rgba(233, 213, 255, 0.12) 0%, rgba(192, 132, 252, 0.15) 100%) !important;
+      border: 1px solid rgba(192, 132, 252, 0.35) !important;
+    }
+    .creator-text-gradient {
+      background: linear-gradient(90deg, #e9d5ff, #c084fc);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 700 !important;
+    }
+
+    /* --- POP-UP MODAL OVERLAY FOR TOSS --- */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 1000; 
+      background: rgba(2, 6, 23, 0.25); 
+      backdrop-filter: blur(6px); 
+      -webkit-backdrop-filter: blur(6px);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity 0.3s ease; padding: 16px;
+    }
+    .modal-overlay.active { opacity: 1; pointer-events: auto; }
+    
+    .modal-window {
+      background: rgba(15, 23, 42, 0.35); 
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.2); 
+      border-radius: 32px;
+      width: 100%; max-width: 400px; padding: 28px; 
+      box-shadow: 0 30px 70px rgba(0, 0, 0, 0.6);
+      transform: translateY(20px); transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); position: relative;
+    }
+    .modal-overlay.active .modal-window { transform: translateY(0); }
+    .close-modal-btn {
+      position: absolute; top: 18px; right: 18px; width: 34px; height: 32px; border-radius: 50%;
+      background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--muted); display: flex; align-items: center; justify-content: center; cursor: pointer;
+    }
+
+    /* --- DYNAMIC TOSS COIN DESIGN --- */
+    .coin-wrapper { display: flex; flex-direction: column; align-items: center; gap: 24px; }
+    .coin-container { perspective: 1200px; width: 96px; height: 96px; }
+    .coin { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transform: rotateY(0deg); }
+    .coin-face {
+      position: absolute; width: 100%; height: 100%; border-radius: 50%; backface-visibility: hidden;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.55), inset 0 2px 5px rgba(255, 255, 255, 0.4); border: 3px solid #fcd34d;
+    }
+    .coin-front { background: radial-gradient(circle, #f59e0b 20%, #d97706 70%, #92400e 100%); }
+    .coin-front::before { content: "H"; font-size: 2.6rem; font-weight: 900; color: #fffbeb; font-family: serif; }
+    .coin-front::after { content: ""; position: absolute; inset: 6px; border: 2px dashed rgba(252, 211, 77, 0.5); border-radius: 50%; }
+    .coin-back { background: radial-gradient(circle, #fbbf24 20%, #b45309 70%, #78350f 100%); transform: rotateY(180deg); }
+    .coin-back::before { content: "T"; font-size: 2.6rem; font-weight: 900; color: #fffbeb; font-family: serif; }
+    .coin-back::after { content: ""; position: absolute; inset: 6px; border: 2px dashed rgba(252, 211, 77, 0.5); border-radius: 50%; }
+
+    .toss-result-banner {
+      font-weight: 600; font-size: 1.15rem; text-align: center; min-height: 44px;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.2);
+      width: 100%; padding: 8px 16px; border-radius: 14px; color: var(--primary);
+    }
+    .empty-state { border: 1px dashed rgba(255, 255, 255, 0.12); border-radius: 16px; color: var(--muted); padding: 24px; text-align: center; }
+
+    /* =========================================
+       MOBILE RESPONSIVE MEDIA QUERIES
+       ========================================= */
+    @media (max-width: 480px) {
+      main {
+        padding: 20px 8px 30px;
+      }
+      
+      h1 { font-size: 2.1rem; }
+      .hero-copy { font-size: 0.95rem; }
+      
+      .glass-panel {
+        padding: 20px 14px;
+        border-radius: 20px;
+      }
+      
+      /* Make Selection Cards slightly tighter on small phones */
+      .checklist-container {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        padding: 8px;
+        max-height: 380px;
+      }
+      
+      .checklist-item {
+        padding: 16px 8px 14px;
+        border-radius: 16px;
+      }
+      
+      .player-avatar {
+        width: 48px; height: 48px;
+        font-size: 1.15rem;
+      }
+      
+      .player-name-text { font-size: 0.85rem; }
+      
+      /* Stack "Add Player" inputs vertically on mobile */
+      .inline-fields {
+        grid-template-columns: 1fr; 
+      }
+      
+      /* Format the 3 final screen buttons to stack beautifully */
+      .teams-actions-footer {
+        flex-wrap: wrap;
+      }
+      
+      #bottomReshuffleBtn, #coinFlipToggleBtn {
+        width: calc(50% - 6px) !important;
+      }
+      
+      .teams-actions-footer .secondary:last-child {
+        width: 100% !important; /* Edit Squad button full width at the bottom */
+        margin-top: 4px;
+      }
+      
+      .step-dot {
+        width: 32px; height: 32px;
+        font-size: 0.8rem;
+      }
+      
+      .coin-container {
+        width: 80px; height: 80px;
+      }
+      
+      .coin-front::before, .coin-back::before {
+        font-size: 2.2rem;
+      }
+      
+      .modal-window {
+        padding: 24px 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main id="top">
+    <div class="step-indicator">
+      <div class="step-dot active" id="dot-1">1</div>
+      <div class="step-dot" id="dot-2">2</div>
+      <div class="step-dot" id="dot-3">3</div>
+    </div>
+
+    <div class="step-container active" id="step-1">
+      <section class="hero">
+        <h1 class="creator-text-gradient">DIWA &lt;3</h1>
+        <p class="hero-copy">Vanakkam Da Mapla, Cricket Vilayaadalam ahh!!?</p>
+      </section>
+
+      <div class="glass-panel">
+        <div class="section-title with-action">
+          <h2>Select Squad</h2>
+          <div style="display: flex; gap: 6px;">
+            <button type="button" class="secondary" id="selectAllBtn">All</button>
+            <button type="button" class="secondary" id="selectNoneBtn">None</button>
+          </div>
+        </div>
+
+        <form id="bulkSquadForm">
+          <div class="checklist-container" id="checklistContainer"></div>
+          <button type="submit" style="margin-bottom: 16px;">Confirm Lineup</button>
+        </form>
+
+        <button type="button" class="accordion-toggle" id="accordionToggle">➕ Add New Arrived Player</button>
+        <div class="accordion-content" id="accordionContent">
+          <div class="inline-fields">
+            <input id="newPlayerName" type="text" placeholder="Name">
+            <select id="newSeparation">
+              <option value="None">None</option>
+              <option value="O">O</option><option value="A">A</option><option value="B">B</option>
+              <option value="C">C</option><option value="D">D</option><option value="E">E</option>
+              <option value="F">F</option><option value="G">G</option><option value="H">H</option>
+              <option value="I">I</option><option value="J">J</option><option value="K">K</option>
+              <option value="L">L</option><option value="M">M</option><option value="N">N</option>
+              <option value="P">P</option><option value="Q">Q</option><option value="R">R</option>
+              <option value="S">S</option><option value="T">T</option><option value="U">U</option>
+              <option value="V">V</option><option value="W">W</option><option value="X">X</option>
+              <option value="Y">Y</option><option value="Z">Z</option>
+            </select>
+          </div>
+          <button type="button" id="addNewPlayerBtn" style="padding: 11px; border-radius: 10px;">Add to Match</button>
+        </div>
+      </div>
+
+      <div style="margin-top: 24px; padding: 0 4px;">
+        <button type="button" class="danger-outline" id="clearStorageBtn">Wipe Room</button>
+      </div>
+    </div>
+
+    <div class="step-container" id="step-2">
+      <div class="glass-panel text-center" style="text-align: center; padding: 36px 20px;">
+        <div class="summary-grid" style="margin-bottom: 26px;">
+          <div>
+            <span id="totalPlayers">0</span>
+            <small style="color:var(--muted); margin-left:8px; font-weight:600;">Active Confirmed Players</small>
+          </div>
+        </div>
+        <p class="hero-copy" style="margin-bottom: 26px;">Ready ahh Maameyyyy!!?</p>
+        
+        <button type="button" id="generateBtn" style="background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%); font-size: 1.15rem; padding: 16px;">Split 🪓</button>
+        
+        <div class="button-flow-group">
+          <button type="button" class="back-btn" onclick="goToStep(1)">Back</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-container" id="step-3">
+      <section id="teams" class="teams-section">
+        <div class="modal-overlay" id="coinFlipModal">
+          <div class="modal-window">
+            <button type="button" class="close-modal-btn" id="closeModalBtn">✕</button>
+            <div class="coin-wrapper">
+              <div class="coin-container">
+                <div class="coin" id="virtualCoin">
+                  <div class="coin-face coin-front"></div>
+                  <div class="coin-face coin-back"></div>
+                </div>
+              </div>
+              <button type="button" id="executeFlipBtn" style="width: auto; padding: 12px 32px;">Toss Coin</button>
+              <div class="toss-result-banner" id="tossResultText">Flip to check result</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="teams-grid">
+          <article class="glass-panel team-card">
+            <div class="team-heading"><h3>Team A</h3></div>
+            <div id="teamA" class="team-list"></div>
+          </article>
+
+          <article class="glass-panel team-card">
+            <div class="team-heading"><h3>Team B</h3></div>
+            <div id="teamB" class="team-list"></div>
+          </article>
+        </div>
+
+        <div class="teams-actions-footer" style="gap: 12px; width: 100%; display: flex; margin-top: 16px;">
+          <button type="button" id="bottomReshuffleBtn" style="width: 33%; font-size:0.85rem; padding:12px;">Split 🪓 Again</button>
+          <button type="button" id="coinFlipToggleBtn" class="secondary" style="background: rgba(255,255,255,0.08); border-radius: 16px; width: 33%; font-size:0.85rem; padding:12px;">Flip 🪙 Coin</button>
+          <button type="button" class="secondary" onclick="goToStep(1)" style="width: 33%; font-size:0.85rem; padding:12px; color: var(--primary);">Edit Squad</button>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const storageKeyActive = "team-marking-active-bulk-v27";
+    const storageKeyMaster = "team-marking-master-bulk-v27";
+
+    const INITIAL_MASTER_POOL = [
+      { id: "p1", name: "DIWA", separation: "O" }, { id: "p2", name: "LACHU", separation: "O" },
+      { id: "p3", name: "MOHIT", separation: "A" }, { id: "p4", name: "NITHIK", separation: "A" },
+      { id: "p5", name: "SRI", separation: "B" }, { id: "p6", name: "DEVI", separation: "B" },
+      { id: "p7", name: "SIDHARTH", separation: "C" }, { id: "p8", name: "PIRATHISH", separation: "C" },
+      { id: "p9", name: "KAVI", separation: "D" }, { id: "p10", name: "PRADEESH", separation: "D" },
+      { id: "p11", name: "PADMA", separation: "E" }, { id: "p12", name: "DHIVYA", separation: "E" },
+      { id: "p13", name: "LALITH", separation: "F" }, { id: "p14", name: "MURALI", separation: "F" },
+      { id: "p15", name: "DHARSHINI", separation: "G" }, { id: "p16", name: "SANGEETHA", separation: "G" },
+      { id: "p17", name: "MONI", separation: "G" }
+    ];
+
+    const checklistContainer = document.getElementById("checklistContainer");
+    const bulkSquadForm = document.getElementById("bulkSquadForm");
+    const selectAllBtn = document.getElementById("selectAllBtn");
+    const selectNoneBtn = document.getElementById("selectNoneBtn");
+    const accordionToggle = document.getElementById("accordionToggle");
+    const accordionContent = document.getElementById("accordionContent");
+    const addNewPlayerBtn = document.getElementById("addNewPlayerBtn");
+    const newPlayerName = document.getElementById("newPlayerName");
+    const newSeparation = document.getElementById("newSeparation");
+    const generateBtn = document.getElementById("generateBtn");
+    const totalPlayers = document.getElementById("totalPlayers");
+    const teamA = document.getElementById("teamA");
+    const teamB = document.getElementById("teamB");
+    const bottomReshuffleBtn = document.getElementById("bottomReshuffleBtn");
+    const coinFlipToggleBtn = document.getElementById("coinFlipToggleBtn");
+    const coinFlipModal = document.getElementById("coinFlipModal");
+    const closeModalBtn = document.getElementById("closeModalBtn");
+    const executeFlipBtn = document.getElementById("executeFlipBtn");
+    const virtualCoin = document.getElementById("virtualCoin");
+    const tossResultText = document.getElementById("tossResultText");
+    const clearStorageBtn = document.getElementById("clearStorageBtn");
+
+    let masterPool = loadMasterPool();
+    let activePlayers = loadActivePlayers();
+    let currentStep = 1;
+
+    function getCryptoRandom() {
+      const buffer = new Uint32Array(1);
+      window.crypto.getRandomValues(buffer);
+      return buffer[0] / 4294967296; 
+    }
+
+    function goToStep(stepNum) {
+      currentStep = stepNum;
+      document.querySelectorAll('.step-container').forEach(panel => panel.classList.remove('active'));
+      document.getElementById(`step-${stepNum}`).classList.add('active');
+      
+      for(let i=1; i<=3; i++) {
+        const dot = document.getElementById(`dot-${i}`);
+        dot.classList.remove('active', 'completed');
+        if(i === stepNum) dot.classList.add('active');
+        else if(i < stepNum) dot.classList.add('completed');
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function loadMasterPool() {
+      const saved = localStorage.getItem(storageKeyMaster);
+      return alignCreatorFirst(saved ? JSON.parse(saved) : [...INITIAL_MASTER_POOL]);
+    }
+    function saveMasterPool() { localStorage.setItem(storageKeyMaster, JSON.stringify(masterPool)); }
+    function loadActivePlayers() {
+      const saved = localStorage.getItem(storageKeyActive);
+      return alignCreatorFirst(saved ? JSON.parse(saved) : []);
+    }
+    function saveActivePlayers() { localStorage.setItem(storageKeyActive, JSON.stringify(activePlayers)); }
+
+    function alignCreatorFirst(array) {
+      const creator = array.filter(p => p.name === "DIWA");
+      const rest = array.filter(p => p.name !== "DIWA");
+      return [...creator, ...rest];
+    }
+
+    function refreshCardStyles() {
+      const boxes = checklistContainer.querySelectorAll('.checklist-item');
+      boxes.forEach(box => {
+        const cb = box.querySelector('input[type="checkbox"]');
+        if (cb.checked) box.classList.add('selected-card');
+        else box.classList.remove('selected-card');
+      });
+    }
+
+    function escapeHtml(val) {
+      return String(val || "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+    }
+
+    function renderChecklistPool() {
+      checklistContainer.innerHTML = "";
+      totalPlayers.textContent = activePlayers.length;
+
+      masterPool.forEach(player => {
+        const isChecked = activePlayers.some(p => p.id === player.id);
+        const isCreator = player.name === "DIWA";
+        const initial = player.name ? player.name.charAt(0) : "?";
+        const imgName = "photos/" + escapeHtml(player.name.toLowerCase().trim()) + ".jpg";
+
+        const itemCard = document.createElement("div");
+        itemCard.className = `checklist-item ${isCreator ? 'creator-glow-row' : ''} ${isChecked ? 'selected-card' : ''}`;
+        
+        itemCard.innerHTML = `
+          <input type="checkbox" id="chk-${player.id}" value="${player.id}" ${isChecked ? 'checked' : ''}>
+          <label for="chk-${player.id}">
+            <div class="player-info-block">
+              <div class="player-avatar">
+                <span class="avatar-initial">${initial}</span>
+                <img src="${imgName}" onerror="this.style.display='none'" class="avatar-image" alt="${initial}">
+              </div>
+              <span class="player-name-text ${isCreator ? 'creator-text-gradient' : ''}">${escapeHtml(player.name)}</span>
+            </div>
+          </label>
+        `;
+
+        itemCard.querySelector('input[type="checkbox"]').addEventListener('change', refreshCardStyles);
+        checklistContainer.appendChild(itemCard);
+      });
+    }
+
+    function secureShuffle(array) {
+      const target = [...array];
+      for (let i = target.length - 1; i > 0; i--) {
+        const j = Math.floor(getCryptoRandom() * (i + 1));
+        [target[i], target[j]] = [target[j], target[i]];
+      }
+      return target;
+    }
+
+    function splitTeams() {
+      if (activePlayers.length < 2) { alert("Please pick at least 2 players!"); return; }
+      const result = [[], []]; let leftovers = []; const groups = {};
+
+      activePlayers.forEach(player => {
+        const factor = player.separation || "None";
+        if (!groups[factor]) groups[factor] = [];
+        groups[factor].push(player);
+      });
+
+      Object.keys(groups).forEach(factor => {
+        const shuffledGroup = secureShuffle(groups[factor]);
+        if (factor !== "None" && shuffledGroup.length >= 2) {
+          const targetIdx = getCryptoRandom() > 0.5 ? [0, 1] : [1, 0];
+          result[targetIdx[0]].push(shuffledGroup[0]);
+          result[targetIdx[1]].push(shuffledGroup[1]);
+          leftovers = leftovers.concat(shuffledGroup.slice(2));
+        } else { leftovers = leftovers.concat(shuffledGroup); }
+      });
+
+      secureShuffle(leftovers).forEach(player => {
+        if (result[0].length > result[1].length) result[1].push(player);
+        else if (result[1].length > result[0].length) result[1].push(player);
+        else result[getCryptoRandom() > 0.5 ? 0 : 1].push(player);
+      });
+
+      const capA = result[0].length > 0 ? result[0][Math.floor(getCryptoRandom() * result[0].length)].id : null;
+      const capB = result[1].length > 0 ? result[1][Math.floor(getCryptoRandom() * result[1].length)].id : null;
+
+      renderTeam(teamA, alignCreatorFirst(result[0]), capA);
+      renderTeam(teamB, alignCreatorFirst(result[1]), capB);
+      
+      goToStep(3);
+    }
+
+    function renderTeam(container, teamPlayers, captainId) {
+      container.innerHTML = "";
+      teamPlayers.forEach((player) => {
+        const isCaptain = player.id === captainId;
+        const isCreator = player.name === "DIWA";
+        const initial = player.name ? player.name.charAt(0) : "?";
+        
+        const imgName = "photos/" + escapeHtml(player.name.toLowerCase().trim()) + ".jpg";
+        
+        const row = document.createElement("div");
+        row.className = `team-player ${isCreator ? 'creator-glow-row' : ''}`;
+        row.innerHTML = `
+          <div class="team-player-left">
+            <div class="player-avatar" style="width:34px; height:34px; font-size:0.9rem;">
+              <span class="avatar-initial">${initial}</span>
+              <img src="${imgName}" onerror="this.style.display='none'" class="avatar-image" alt="${initial}">
+            </div>
+            <span class="${isCreator ? 'creator-text-gradient' : (isCaptain ? 'captain-highlight' : '')}">
+              ${escapeHtml(player.name)} ${isCaptain ? '👑 (CAPTAIN)' : ''}
+            </span>
+          </div>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    function clearTeamsDisplay() {
+      teamA.innerHTML = `<div class="empty-state">Generate teams after selecting squad.</div>`;
+      teamB.innerHTML = `<div class="empty-state">Generate teams after selecting squad.</div>`;
+      coinFlipModal.classList.remove("active");
+      tossResultText.textContent = "Flip to check result";
+      virtualCoin.style.transition = 'none'; virtualCoin.style.transform = 'rotateY(0deg)';
+    }
+
+    accordionToggle.addEventListener("click", () => {
+      accordionToggle.classList.toggle("active"); accordionContent.classList.toggle("open");
+    });
+    
+    selectAllBtn.addEventListener("click", () => { 
+      checklistContainer.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = true);
+      refreshCardStyles();
+    });
+    
+    selectNoneBtn.addEventListener("click", () => { 
+      checklistContainer.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+      refreshCardStyles();
+    });
+
+    bulkSquadForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const newActiveList = [];
+      checklistContainer.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+        if (cb.checked) { const p = masterPool.find(x => x.id === cb.value); if (p) newActiveList.push(p); }
+      });
+      activePlayers = alignCreatorFirst(newActiveList); saveActivePlayers(); totalPlayers.textContent = activePlayers.length;
+      goToStep(2);
+    });
+
+    addNewPlayerBtn.addEventListener("click", () => {
+      const name = newPlayerName.value.trim().toUpperCase(); if (!name) return;
+      const fresh = { id: `c-${Date.now()}`, name: name, separation: newSeparation.value };
+      masterPool.push(fresh); activePlayers.push(fresh);
+      masterPool = alignCreatorFirst(masterPool); activePlayers = alignCreatorFirst(activePlayers);
+      saveMasterPool(); saveActivePlayers(); newPlayerName.value = ""; newSeparation.value = "None";
+      renderChecklistPool();
+      accordionToggle.classList.remove("active"); accordionContent.classList.remove("open");
+    });
+
+    generateBtn.addEventListener("click", splitTeams);
+    bottomReshuffleBtn.addEventListener("click", splitTeams);
+    coinFlipToggleBtn.addEventListener("click", () => coinFlipModal.classList.add("active"));
+    closeModalBtn.addEventListener("click", () => coinFlipModal.classList.remove("active"));
+    coinFlipModal.addEventListener("click", (e) => { if (e.target === coinFlipModal) coinFlipModal.classList.remove("active"); });
+
+    executeFlipBtn.addEventListener("click", () => {
+      executeFlipBtn.disabled = true; tossResultText.textContent = "Flipping...";
+      virtualCoin.style.transition = 'none'; virtualCoin.style.transform = 'rotateY(0deg)'; virtualCoin.offsetHeight;
+      
+      const isHeads = getCryptoRandom() < 0.5;
+      const targetRotation = isHeads ? 1440 : 1620;
+      virtualCoin.style.transition = 'transform 1.4s cubic-bezier(0.2, 0.85, 0.32, 1.2)';
+      virtualCoin.style.transform = `rotateY(${targetRotation}deg)`;
+      
+      setTimeout(() => {
+        tossResultText.innerHTML = isHeads ? "🪙 <strong>HEADS!</strong>" : "🪙 <strong>TAILS!</strong>";
+        executeFlipBtn.disabled = false;
+      }, 1400);
+    });
+
+    clearStorageBtn.addEventListener("click", () => { if (confirm("Clear room records and reset squad lists?")) { localStorage.clear(); location.reload(); } });
+
+    renderChecklistPool();
+  </script>
+</body>
+</html>
