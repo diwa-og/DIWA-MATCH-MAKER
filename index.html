@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Match Making</title>
   <style>
     /* --- CSS PREMIUM GLASS WORKFLOW DESIGN VARIABLES --- */
@@ -23,7 +23,7 @@
       --danger: #f43f5e;
       --success: #4ade80;
       --shadow: 0 30px 60px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.15);
-      --anim-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      --anim-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     * {
@@ -55,17 +55,19 @@
       top: 0; left: 0; right: 0; bottom: 0;
       z-index: -1;
       background: 
-        linear-gradient(180deg, rgba(3, 7, 18, 0.35) 0%, rgba(15, 23, 42, 0.65) 50%, rgba(3, 7, 18, 0.9) 100%),
+        linear-gradient(180deg, rgba(3, 7, 18, 0.4) 0%, rgba(15, 23, 42, 0.75) 50%, rgba(3, 7, 18, 0.95) 100%),
         url('photos/bg.jpg'); 
       background-size: cover;
       background-position: center 30%;
+      will-change: transform;
+      transform: translateZ(0); /* Anti-lag hardware acceleration */
     }
 
     main {
       position: relative;
       margin: 0 auto;
       max-width: 540px;
-      padding: 32px 12px 40px;
+      padding: 40px 12px 40px;
     }
 
     /* --- PREMIUM WIZARD STEP INDICATOR --- */
@@ -137,8 +139,8 @@
       border: 1px solid var(--glass-border);
       border-radius: 28px;
       box-shadow: var(--shadow);
-      backdrop-filter: blur(30px) saturate(210%);
-      -webkit-backdrop-filter: blur(30px) saturate(210%);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
       padding: 24px 20px;
       margin-bottom: 20px;
     }
@@ -253,7 +255,7 @@
 
     /* --- RESPONSIVE TILED GRID LAYOUT --- */
     .checklist-container {
-      max-height: 420px;
+      max-height: 500px;
       overflow-y: auto;
       padding: 10px;
       background: rgba(5, 10, 20, 0.4);
@@ -263,7 +265,11 @@
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 14px;
+      -webkit-overflow-scrolling: touch;
     }
+    
+    .checklist-container::-webkit-scrollbar { width: 6px; }
+    .checklist-container::-webkit-scrollbar-thumb { background-color: rgba(255,255,255,0.2); border-radius: 10px; }
 
     .checklist-item {
       position: relative;
@@ -274,6 +280,11 @@
       padding: 24px 12px 20px;
       cursor: pointer;
       transition: var(--anim-smooth);
+      
+      /* Stop mobile text selection & image saving context menu on long press */
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
     }
 
     .checklist-item input[type="checkbox"] {
@@ -290,7 +301,8 @@
       text-align: center;
       width: 100%;
       cursor: pointer;
-      gap: 12px;
+      gap: 14px;
+      pointer-events: none; /* Let the parent div handle all touches for long press logic */
     }
 
     .player-info-block {
@@ -302,12 +314,12 @@
     }
 
     .player-avatar {
-      width: 56px; height: 56px;
+      width: 96px; height: 96px; 
       border-radius: 50%;
       background: rgba(255, 255, 255, 0.06);
       border: 1px solid rgba(255, 255, 255, 0.15);
       display: flex; align-items: center; justify-content: center;
-      font-size: 1.35rem; font-weight: 700; text-transform: uppercase;
+      font-size: 2.6rem; font-weight: 700; text-transform: uppercase;
       color: var(--text);
       position: relative;
       transition: var(--anim-smooth);
@@ -329,7 +341,7 @@
     }
 
     .player-name-text {
-      font-size: 0.95rem;
+      font-size: 1rem;
       font-weight: 600;
       letter-spacing: -0.01em;
       color: var(--text);
@@ -346,7 +358,7 @@
 
     .checklist-item.selected-card .player-avatar {
       background: rgba(255, 255, 255, 0.1);
-      border-color: rgba(255, 255, 255, 0.4);
+      border-color: var(--primary);
     }
 
     /* Premium Clean Check Mark Interface Hook */
@@ -354,12 +366,12 @@
       content: "✓";
       position: absolute;
       bottom: 12px; right: 12px;
-      width: 18px; height: 18px;
+      width: 22px; height: 22px;
       border-radius: 50%;
       background: rgba(255, 255, 255, 0.1);
       border: 1px solid rgba(255, 255, 255, 0.2);
-      color: var(--text);
-      font-size: 0.7rem;
+      color: transparent;
+      font-size: 0.85rem;
       font-weight: 900;
       display: flex; align-items: center; justify-content: center;
       opacity: 0;
@@ -371,6 +383,7 @@
       opacity: 1;
       transform: scale(1);
       background: rgba(255, 255, 255, 0.2);
+      color: var(--text);
     }
 
     /* --- ACCORDION DETAILS PANELS --- */
@@ -389,26 +402,22 @@
       background: rgba(0, 0, 0, 0.2); border-radius: 0 0 16px 16px;
     }
     .accordion-content.open {
-      max-height: 240px; padding: 16px;
+      max-height: 380px; padding: 16px;
       border: 1px solid rgba(255, 255, 255, 0.07); border-top: none; margin-top: -2px;
     }
 
     .inline-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
-    input {
+    input, select {
       border: 1px solid var(--glass-border); border-radius: 12px;
       background: rgba(255, 255, 255, 0.04); color: var(--text); padding: 12px; font-size: 0.9rem; outline: none;
+      -webkit-appearance: none; appearance: none;
     }
-
-    /* --- HIGH-CONTRAST CHOOSE TIER COMPONENT PANEL --- */
     select {
-      border: 1px solid var(--glass-border); border-radius: 12px;
-      background: #10172a; color: #ffffff; padding: 12px; font-size: 0.9rem; outline: none;
-      transition: var(--anim-smooth);
-      cursor: pointer;
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+      background-repeat: no-repeat; background-position: right 12px center; background-size: 16px; padding-right: 36px;
     }
-    select:focus {
+    input:focus, select:focus {
       border-color: var(--primary);
-      box-shadow: 0 0 12px var(--primary-glow);
     }
     select option {
       background-color: #10172a;
@@ -449,21 +458,21 @@
       -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 700 !important;
     }
 
-    /* --- POP-UP MODAL OVERLAY FOR TOSS --- */
+    /* --- POP-UP MODALS --- */
     .modal-overlay {
       position: fixed; inset: 0; z-index: 1000; 
-      background: rgba(2, 6, 23, 0.25); 
-      backdrop-filter: blur(6px); 
-      -webkit-backdrop-filter: blur(6px);
+      background: rgba(2, 6, 23, 0.65); 
+      backdrop-filter: blur(8px); 
+      -webkit-backdrop-filter: blur(8px);
       display: flex; align-items: center; justify-content: center;
       opacity: 0; pointer-events: none; transition: opacity 0.3s ease; padding: 16px;
     }
     .modal-overlay.active { opacity: 1; pointer-events: auto; }
     
     .modal-window {
-      background: rgba(15, 23, 42, 0.35); 
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      background: rgba(15, 23, 42, 0.7); 
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
       border: 1px solid rgba(255, 255, 255, 0.2); 
       border-radius: 32px;
       width: 100%; max-width: 400px; padding: 28px; 
@@ -472,10 +481,50 @@
     }
     .modal-overlay.active .modal-window { transform: translateY(0); }
     .close-modal-btn {
-      position: absolute; top: 18px; right: 18px; width: 34px; height: 32px; border-radius: 50%;
-      background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.12);
-      color: var(--muted); display: flex; align-items: center; justify-content: center; cursor: pointer;
+      position: absolute; top: 18px; right: 18px; width: 34px; height: 34px; border-radius: 50%;
+      background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15);
+      color: var(--text); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1rem; z-index: 10;
     }
+
+    /* --- INDIVIDUAL PLAYER PROFILE POPUP (LONG PRESS) --- */
+    .profile-card-content {
+      display: flex; flex-direction: column; align-items: center; text-align: center; gap: 16px; padding: 10px 0;
+    }
+    .profile-card-content .player-avatar {
+      width: 140px; height: 140px; font-size: 4rem; border: 3px solid var(--primary);
+      box-shadow: 0 0 30px rgba(56, 189, 248, 0.3);
+    }
+    .profile-card-content h3 { margin: 0; font-size: 1.8rem; font-weight: 800; color: #fff; }
+    
+    .role-badges { display: flex; gap: 10px; margin-top: 4px; }
+    .badge { font-size: 0.85rem; font-weight: 700; padding: 6px 14px; border-radius: 12px; text-transform: uppercase; letter-spacing: 0.05em; }
+    
+    .badge-batsman { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
+    .badge-bowler { background: rgba(74, 222, 128, 0.15); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.3); }
+    .badge-allrounder { background: rgba(250, 204, 21, 0.15); color: #facc15; border: 1px solid rgba(250, 204, 21, 0.3); }
+    .badge-wk { background: rgba(192, 132, 252, 0.15); color: #c084fc; border: 1px solid rgba(192, 132, 252, 0.3); }
+    .badge-gender { background: rgba(255, 255, 255, 0.1); color: #f8fafc; border: 1px solid rgba(255, 255, 255, 0.2); }
+
+    /* --- DIRECTORY GRID POPUP --- */
+    .profiles-header {
+      font-size: 1.5rem; font-weight: 700; color: #fff; margin-bottom: 20px; text-align: center;
+    }
+    .profiles-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px;
+      overflow-y: auto; padding-right: 4px; padding-bottom: 10px; max-height: 60vh;
+    }
+    .profiles-grid::-webkit-scrollbar { width: 6px; }
+    .profiles-grid::-webkit-scrollbar-thumb { background-color: rgba(255,255,255,0.2); border-radius: 10px; }
+    
+    .mini-profile-card {
+      background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px; padding: 18px 10px;
+      display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px;
+    }
+    .mini-profile-card .player-avatar { width: 72px; height: 72px; font-size: 2rem; border-width: 1px; }
+    .mini-profile-name { font-size: 0.95rem; font-weight: 700; color: #fff; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .mini-badges { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; width: 100%; }
+    .mini-badges .badge { font-size: 0.65rem; padding: 4px 8px; border-radius: 8px; }
 
     /* --- DYNAMIC TOSS COIN DESIGN --- */
     .coin-wrapper { display: flex; flex-direction: column; align-items: center; gap: 24px; }
@@ -506,10 +555,10 @@
        ========================================= */
     @media (max-width: 480px) {
       main {
-        padding: 20px 8px 30px;
+        padding: 56px 8px 30px; 
       }
       
-      h1 { font-size: 2.1rem; }
+      h1 { font-size: 2.2rem; }
       .hero-copy { font-size: 0.95rem; }
       
       .glass-panel {
@@ -517,12 +566,11 @@
         border-radius: 20px;
       }
       
-      /* Make Selection Cards slightly tighter on small phones */
       .checklist-container {
         grid-template-columns: repeat(2, 1fr);
         gap: 10px;
         padding: 8px;
-        max-height: 380px;
+        max-height: 520px;
       }
       
       .checklist-item {
@@ -531,18 +579,16 @@
       }
       
       .player-avatar {
-        width: 48px; height: 48px;
-        font-size: 1.15rem;
+        width: 88px; height: 88px;
+        font-size: 2.4rem;
       }
       
-      .player-name-text { font-size: 0.85rem; }
+      .player-name-text { font-size: 0.9rem; }
       
-      /* Stack "Add Player" inputs vertically on mobile */
       .inline-fields {
         grid-template-columns: 1fr; 
       }
       
-      /* Format the 3 final screen buttons to stack beautifully */
       .teams-actions-footer {
         flex-wrap: wrap;
       }
@@ -552,25 +598,13 @@
       }
       
       .teams-actions-footer .secondary:last-child {
-        width: 100% !important; /* Edit Squad button full width at the bottom */
+        width: 100% !important; 
         margin-top: 4px;
       }
       
       .step-dot {
         width: 32px; height: 32px;
         font-size: 0.8rem;
-      }
-      
-      .coin-container {
-        width: 80px; height: 80px;
-      }
-      
-      .coin-front::before, .coin-back::before {
-        font-size: 2.2rem;
-      }
-      
-      .modal-window {
-        padding: 24px 20px;
       }
     }
   </style>
@@ -585,18 +619,20 @@
 
     <div class="step-container active" id="step-1">
       <section class="hero">
-        <h1 class="creator-text-gradient">DIWA &lt;3</h1>
-        <p class="hero-copy">Vanakkam Da Mapla, Cricket Vilayaadalam ahh!!?</p>
+        <h1 class="creator-text-gradient" style="background: linear-gradient(180deg, #ffffff 0%, #cbd5e1 100%); -webkit-background-clip: text;">DIWA &lt;3</h1>
+        <p class="hero-copy">Match Maker</p>
       </section>
 
       <div class="glass-panel">
         <div class="section-title with-action">
           <h2>Select Squad</h2>
-          <div style="display: flex; gap: 6px;">
+          <div style="display: flex; gap: 8px;">
             <button type="button" class="secondary" id="selectAllBtn">All</button>
             <button type="button" class="secondary" id="selectNoneBtn">None</button>
           </div>
         </div>
+        
+        <p style="font-size:0.8rem; color:var(--muted); margin-top:-10px; text-align:center;">Tip: Hold down on a player to view their profile</p>
 
         <form id="bulkSquadForm">
           <div class="checklist-container" id="checklistContainer"></div>
@@ -608,24 +644,48 @@
           <div class="inline-fields">
             <input id="newPlayerName" type="text" placeholder="Name">
             <select id="newSeparation">
-              <option value="None">None</option>
-              <option value="O">O</option><option value="A">A</option><option value="B">B</option>
-              <option value="C">C</option><option value="D">D</option><option value="E">E</option>
-              <option value="F">F</option><option value="G">G</option><option value="H">H</option>
-              <option value="I">I</option><option value="J">J</option><option value="K">K</option>
-              <option value="L">L</option><option value="M">M</option><option value="N">N</option>
-              <option value="P">P</option><option value="Q">Q</option><option value="R">R</option>
-              <option value="S">S</option><option value="T">T</option><option value="U">U</option>
-              <option value="V">V</option><option value="W">W</option><option value="X">X</option>
-              <option value="Y">Y</option><option value="Z">Z</option>
+              <option value="None">Tier: None</option>
+              <option value="O">Tier: O</option><option value="A">Tier: A</option><option value="B">Tier: B</option>
+              <option value="C">Tier: C</option><option value="D">Tier: D</option><option value="E">Tier: E</option>
             </select>
           </div>
-          <button type="button" id="addNewPlayerBtn" style="padding: 11px; border-radius: 10px;">Add to Match</button>
+          <div class="inline-fields">
+            <select id="newRole">
+              <option value="Batsman">Batsman</option>
+              <option value="Bowler">Bowler</option>
+              <option value="All-Rounder">All-Rounder</option>
+              <option value="Bats-Woman">Bats-Woman</option>
+              <option value="Wicket Keeper">Wicket Keeper</option>
+            </select>
+            <select id="newGender">
+              <option value="M">Male (M)</option>
+              <option value="F">Female (F)</option>
+            </select>
+          </div>
+          <button type="button" id="addNewPlayerBtn" style="padding: 12px; border-radius: 12px;">Save & Add</button>
         </div>
       </div>
 
-      <div style="margin-top: 24px; padding: 0 4px;">
+      <div style="padding: 0 4px; display: flex; flex-direction: column; gap: 12px;">
+        <button type="button" id="openProfilesBtn" style="background: rgba(255,255,255,0.05); color: var(--text); border: 1px solid rgba(255,255,255,0.15); box-shadow: none;">👤 Open Directory Grid</button>
         <button type="button" class="danger-outline" id="clearStorageBtn">Wipe Room</button>
+      </div>
+    </div>
+
+    <div class="modal-overlay" id="singleProfileModal">
+      <div class="modal-window" style="max-width: 320px;">
+        <button type="button" class="close-modal-btn" id="closeSingleProfileBtn">✕</button>
+        <div class="profile-card-content" id="singleProfileContent">
+           </div>
+      </div>
+    </div>
+
+    <div class="modal-overlay" id="profilesModal">
+      <div class="modal-window">
+        <button type="button" class="close-modal-btn" id="closeProfilesBtn">✕</button>
+        <h3 class="profiles-header">Player Directory</h3>
+        <div class="profiles-grid" id="profilesGrid">
+          </div>
       </div>
     </div>
 
@@ -637,7 +697,7 @@
             <small style="color:var(--muted); margin-left:8px; font-weight:600;">Active Confirmed Players</small>
           </div>
         </div>
-        <p class="hero-copy" style="margin-bottom: 26px;">Ready ahh Maameyyyy!!?</p>
+        <p class="hero-copy" style="margin-bottom: 26px;">Ready to split the teams?</p>
         
         <button type="button" id="generateBtn" style="background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%); font-size: 1.15rem; padding: 16px;">Split 🪓</button>
         
@@ -650,7 +710,7 @@
     <div class="step-container" id="step-3">
       <section id="teams" class="teams-section">
         <div class="modal-overlay" id="coinFlipModal">
-          <div class="modal-window">
+          <div class="modal-window" style="max-width: 360px;">
             <button type="button" class="close-modal-btn" id="closeModalBtn">✕</button>
             <div class="coin-wrapper">
               <div class="coin-container">
@@ -659,7 +719,7 @@
                   <div class="coin-face coin-back"></div>
                 </div>
               </div>
-              <button type="button" id="executeFlipBtn" style="width: auto; padding: 12px 32px;">Toss Coin</button>
+              <button type="button" id="executeFlipBtn" style="width: auto; padding: 12px 32px; border-radius: 12px;">Toss Coin</button>
               <div class="toss-result-banner" id="tossResultText">Flip to check result</div>
             </div>
           </div>
@@ -687,19 +747,28 @@
   </main>
 
   <script>
-    const storageKeyActive = "team-marking-active-bulk-v27";
-    const storageKeyMaster = "team-marking-master-bulk-v27";
+    const storageKeyActive = "team-marking-active-bulk-v34"; 
+    const storageKeyMaster = "team-marking-master-bulk-v34"; 
 
+    /* UPDATED MASTER POOL WITH NEW NAMES, ROLES AND GENDERS */
     const INITIAL_MASTER_POOL = [
-      { id: "p1", name: "DIWA", separation: "O" }, { id: "p2", name: "LACHU", separation: "O" },
-      { id: "p3", name: "MOHIT", separation: "A" }, { id: "p4", name: "NITHIK", separation: "A" },
-      { id: "p5", name: "SRI", separation: "B" }, { id: "p6", name: "DEVI", separation: "B" },
-      { id: "p7", name: "SIDHARTH", separation: "C" }, { id: "p8", name: "PIRATHISH", separation: "C" },
-      { id: "p9", name: "KAVI", separation: "D" }, { id: "p10", name: "PRADEESH", separation: "D" },
-      { id: "p11", name: "PADMA", separation: "E" }, { id: "p12", name: "DHIVYA", separation: "E" },
-      { id: "p13", name: "LALITH", separation: "F" }, { id: "p14", name: "MURALI", separation: "F" },
-      { id: "p15", name: "DHARSHINI", separation: "G" }, { id: "p16", name: "SANGEETHA", separation: "G" },
-      { id: "p17", name: "MONI", separation: "G" }
+      { id: "p1", name: "DIWA OG", separation: "O", role: "All-Rounder", gender: "M" }, 
+      { id: "p2", name: "LACHU", separation: "O", role: "All-Rounder", gender: "M" },
+      { id: "p3", name: "MOHIT", separation: "A", role: "Batsman", gender: "M" }, 
+      { id: "p4", name: "NITHIK", separation: "A", role: "Batsman", gender: "M" },
+      { id: "p5", name: "MATHI SHA", separation: "B", role: "Bowler", gender: "F" }, 
+      { id: "p6", name: "DEVI", separation: "B", role: "Bats-Woman", gender: "F" },
+      { id: "p7", name: "SIDHARTH", separation: "C", role: "Batsman", gender: "M" }, 
+      { id: "p8", name: "PIRATHISH", separation: "C", role: "Bowler", gender: "M" },
+      { id: "p9", name: "KAVI", separation: "D", role: "Bats-Woman", gender: "F" }, 
+      { id: "p10", name: "PRADEESH", separation: "D", role: "Batsman", gender: "M" },
+      { id: "p11", name: "PADMA", separation: "E", role: "Bats-Woman", gender: "F" }, 
+      { id: "p12", name: "DHIVYA", separation: "E", role: "Bats-Woman", gender: "F" },
+      { id: "p13", name: "LALITH", separation: "F", role: "All-Rounder", gender: "M" }, 
+      { id: "p14", name: "MURALI", separation: "F", role: "Batsman", gender: "M" },
+      { id: "p15", name: "DHARSHINI", separation: "G", role: "Bats-Woman", gender: "F" }, 
+      { id: "p16", name: "SANGEETHA", separation: "G", role: "Bats-Woman", gender: "F" },
+      { id: "p17", name: "MONI", separation: "G", role: "Bats-Woman", gender: "F" }
     ];
 
     const checklistContainer = document.getElementById("checklistContainer");
@@ -708,14 +777,21 @@
     const selectNoneBtn = document.getElementById("selectNoneBtn");
     const accordionToggle = document.getElementById("accordionToggle");
     const accordionContent = document.getElementById("accordionContent");
+    
+    // Add Player Inputs
     const addNewPlayerBtn = document.getElementById("addNewPlayerBtn");
     const newPlayerName = document.getElementById("newPlayerName");
     const newSeparation = document.getElementById("newSeparation");
+    const newRole = document.getElementById("newRole");
+    const newGender = document.getElementById("newGender");
+
     const generateBtn = document.getElementById("generateBtn");
     const totalPlayers = document.getElementById("totalPlayers");
     const teamA = document.getElementById("teamA");
     const teamB = document.getElementById("teamB");
     const bottomReshuffleBtn = document.getElementById("bottomReshuffleBtn");
+    
+    // Modals
     const coinFlipToggleBtn = document.getElementById("coinFlipToggleBtn");
     const coinFlipModal = document.getElementById("coinFlipModal");
     const closeModalBtn = document.getElementById("closeModalBtn");
@@ -723,6 +799,15 @@
     const virtualCoin = document.getElementById("virtualCoin");
     const tossResultText = document.getElementById("tossResultText");
     const clearStorageBtn = document.getElementById("clearStorageBtn");
+    
+    const openProfilesBtn = document.getElementById("openProfilesBtn");
+    const closeProfilesBtn = document.getElementById("closeProfilesBtn");
+    const profilesModal = document.getElementById("profilesModal");
+    const profilesGrid = document.getElementById("profilesGrid");
+
+    const singleProfileModal = document.getElementById("singleProfileModal");
+    const closeSingleProfileBtn = document.getElementById("closeSingleProfileBtn");
+    const singleProfileContent = document.getElementById("singleProfileContent");
 
     let masterPool = loadMasterPool();
     let activePlayers = loadActivePlayers();
@@ -760,8 +845,8 @@
     function saveActivePlayers() { localStorage.setItem(storageKeyActive, JSON.stringify(activePlayers)); }
 
     function alignCreatorFirst(array) {
-      const creator = array.filter(p => p.name === "DIWA");
-      const rest = array.filter(p => p.name !== "DIWA");
+      const creator = array.filter(p => p.name === "DIWA OG");
+      const rest = array.filter(p => p.name !== "DIWA OG");
       return [...creator, ...rest];
     }
 
@@ -778,13 +863,14 @@
       return String(val || "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
     }
 
+    // --- RENDER MAIN SELECTION ---
     function renderChecklistPool() {
       checklistContainer.innerHTML = "";
       totalPlayers.textContent = activePlayers.length;
 
       masterPool.forEach(player => {
         const isChecked = activePlayers.some(p => p.id === player.id);
-        const isCreator = player.name === "DIWA";
+        const isCreator = player.name === "DIWA OG";
         const initial = player.name ? player.name.charAt(0) : "?";
         const imgName = "photos/" + escapeHtml(player.name.toLowerCase().trim()) + ".jpg";
 
@@ -804,8 +890,115 @@
           </label>
         `;
 
-        itemCard.querySelector('input[type="checkbox"]').addEventListener('change', refreshCardStyles);
+        // LONG PRESS LOGIC IMPLEMENTATION
+        let pressTimer;
+        let isLongPress = false;
+
+        const startPress = (e) => {
+          isLongPress = false;
+          pressTimer = setTimeout(() => {
+            isLongPress = true;
+            openSingleProfile(player);
+            // Trigger device haptic feedback if supported
+            if (navigator.vibrate) navigator.vibrate(50);
+          }, 500); // 500ms trigger for long press
+        };
+
+        const cancelPress = (e) => {
+          clearTimeout(pressTimer);
+          // If a long press happened, prevent the normal click from toggling the checkbox
+          if (isLongPress && e.type === 'touchend') {
+            e.preventDefault();
+          }
+        };
+
+        const preventContextMenu = (e) => {
+          e.preventDefault();
+        };
+
+        itemCard.addEventListener('touchstart', startPress, {passive: true});
+        itemCard.addEventListener('touchend', cancelPress);
+        itemCard.addEventListener('touchmove', cancelPress);
+        itemCard.addEventListener('mousedown', startPress);
+        itemCard.addEventListener('mouseup', cancelPress);
+        itemCard.addEventListener('mouseleave', cancelPress);
+        itemCard.addEventListener('contextmenu', preventContextMenu); // stops mobile image save menu
+
+        // Checkbox click listener
+        const checkbox = itemCard.querySelector('input[type="checkbox"]');
+        itemCard.addEventListener('click', (e) => {
+          if (isLongPress) {
+            e.preventDefault(); // block check if it was a long press
+            return;
+          }
+          // Normal click toggles checkbox
+          if(e.target !== checkbox) {
+             checkbox.checked = !checkbox.checked;
+          }
+          refreshCardStyles();
+        });
+
         checklistContainer.appendChild(itemCard);
+      });
+    }
+
+    // Helper to get CSS Class based on role
+    function getRoleClass(roleStr) {
+      if (roleStr === "Bowler") return "badge-bowler";
+      if (roleStr === "All-Rounder") return "badge-allrounder";
+      if (roleStr === "Wicket Keeper") return "badge-wk";
+      return "badge-batsman"; // default
+    }
+
+    // --- SHOW INDIVIDUAL PLAYER PROFILE (FROM LONG PRESS) ---
+    function openSingleProfile(player) {
+      const initial = player.name ? player.name.charAt(0) : "?";
+      const imgName = "photos/" + escapeHtml(player.name.toLowerCase().trim()) + ".jpg";
+      const roleStr = player.role || "Player";
+      const genderStr = player.gender || "U";
+      const roleClass = getRoleClass(roleStr);
+
+      singleProfileContent.innerHTML = `
+        <div class="player-avatar">
+          <span class="avatar-initial">${initial}</span>
+          <img src="${imgName}" onerror="this.style.display='none'" class="avatar-image" alt="${initial}">
+        </div>
+        <h3>${escapeHtml(player.name)}</h3>
+        <div class="role-badges">
+          <span class="badge ${roleClass}">${roleStr}</span>
+          <span class="badge badge-gender">${genderStr === 'M' ? 'Male' : (genderStr === 'F' ? 'Female' : genderStr)}</span>
+        </div>
+      `;
+      singleProfileModal.classList.add("active");
+    }
+
+    closeSingleProfileBtn.addEventListener("click", () => singleProfileModal.classList.remove("active"));
+    singleProfileModal.addEventListener("click", (e) => { if (e.target === singleProfileModal) singleProfileModal.classList.remove("active"); });
+
+    // --- RENDER PLAYER DIRECTORY MODAL ---
+    function renderProfilesDirectory() {
+      profilesGrid.innerHTML = "";
+      masterPool.forEach(player => {
+        const initial = player.name ? player.name.charAt(0) : "?";
+        const imgName = "photos/" + escapeHtml(player.name.toLowerCase().trim()) + ".jpg";
+        const roleStr = player.role || "Player";
+        const genderStr = player.gender || "U";
+        const roleClass = getRoleClass(roleStr);
+
+        const card = document.createElement("div");
+        card.className = "mini-profile-card";
+        card.innerHTML = `
+          <div class="player-avatar">
+            <span class="avatar-initial">${initial}</span>
+            <img src="${imgName}" onerror="this.style.display='none'" class="avatar-image" alt="${initial}">
+          </div>
+          <div class="mini-profile-name">${escapeHtml(player.name)}</div>
+          <div class="mini-badges">
+            <span class="badge ${roleClass}">${roleStr}</span>
+            <span class="badge badge-gender">${genderStr}</span>
+          </div>
+        `;
+        profilesGrid.appendChild(card);
       });
     }
 
@@ -838,10 +1031,11 @@
         } else { leftovers = leftovers.concat(shuffledGroup); }
       });
 
+      /* Equalization logic */
       secureShuffle(leftovers).forEach(player => {
-        if (result[0].length > result[1].length) result[1].push(player);
-        else if (result[1].length > result[0].length) result[1].push(player);
-        else result[getCryptoRandom() > 0.5 ? 0 : 1].push(player);
+        if (result[0].length > result[1].length) { result[1].push(player); } 
+        else if (result[1].length > result[0].length) { result[0].push(player); } 
+        else { result[getCryptoRandom() > 0.5 ? 0 : 1].push(player); }
       });
 
       const capA = result[0].length > 0 ? result[0][Math.floor(getCryptoRandom() * result[0].length)].id : null;
@@ -857,34 +1051,26 @@
       container.innerHTML = "";
       teamPlayers.forEach((player) => {
         const isCaptain = player.id === captainId;
-        const isCreator = player.name === "DIWA";
+        const isCreator = player.name === "DIWA OG";
         const initial = player.name ? player.name.charAt(0) : "?";
-        
         const imgName = "photos/" + escapeHtml(player.name.toLowerCase().trim()) + ".jpg";
         
         const row = document.createElement("div");
         row.className = `team-player ${isCreator ? 'creator-glow-row' : ''}`;
+        
         row.innerHTML = `
           <div class="team-player-left">
-            <div class="player-avatar" style="width:34px; height:34px; font-size:0.9rem;">
+            <div class="player-avatar" style="width:48px; height:48px; font-size:1.4rem; margin:0; border: none; background: rgba(255,255,255,0.1);">
               <span class="avatar-initial">${initial}</span>
               <img src="${imgName}" onerror="this.style.display='none'" class="avatar-image" alt="${initial}">
             </div>
             <span class="${isCreator ? 'creator-text-gradient' : (isCaptain ? 'captain-highlight' : '')}">
-              ${escapeHtml(player.name)} ${isCaptain ? '👑 (CAPTAIN)' : ''}
+              ${escapeHtml(player.name)} ${isCaptain ? '👑' : ''}
             </span>
           </div>
         `;
         container.appendChild(row);
       });
-    }
-
-    function clearTeamsDisplay() {
-      teamA.innerHTML = `<div class="empty-state">Generate teams after selecting squad.</div>`;
-      teamB.innerHTML = `<div class="empty-state">Generate teams after selecting squad.</div>`;
-      coinFlipModal.classList.remove("active");
-      tossResultText.textContent = "Flip to check result";
-      virtualCoin.style.transition = 'none'; virtualCoin.style.transform = 'rotateY(0deg)';
     }
 
     accordionToggle.addEventListener("click", () => {
@@ -913,16 +1099,23 @@
 
     addNewPlayerBtn.addEventListener("click", () => {
       const name = newPlayerName.value.trim().toUpperCase(); if (!name) return;
-      const fresh = { id: `c-${Date.now()}`, name: name, separation: newSeparation.value };
+      const fresh = { 
+        id: `c-${Date.now()}`, 
+        name: name, 
+        separation: newSeparation.value,
+        role: newRole.value,
+        gender: newGender.value
+      };
       masterPool.push(fresh); activePlayers.push(fresh);
       masterPool = alignCreatorFirst(masterPool); activePlayers = alignCreatorFirst(activePlayers);
-      saveMasterPool(); saveActivePlayers(); newPlayerName.value = ""; newSeparation.value = "None";
+      saveMasterPool(); saveActivePlayers(); 
+      newPlayerName.value = ""; newSeparation.value = "None"; newRole.value = "Batsman"; newGender.value = "M";
       renderChecklistPool();
+      renderProfilesDirectory();
       accordionToggle.classList.remove("active"); accordionContent.classList.remove("open");
     });
 
-    generateBtn.addEventListener("click", splitTeams);
-    bottomReshuffleBtn.addEventListener("click", splitTeams);
+    /* TOSS COIN EVENTS */
     coinFlipToggleBtn.addEventListener("click", () => coinFlipModal.classList.add("active"));
     closeModalBtn.addEventListener("click", () => coinFlipModal.classList.remove("active"));
     coinFlipModal.addEventListener("click", (e) => { if (e.target === coinFlipModal) coinFlipModal.classList.remove("active"); });
@@ -941,10 +1134,22 @@
         executeFlipBtn.disabled = false;
       }, 1400);
     });
+    
+    /* DIRECTORY MODAL EVENTS */
+    openProfilesBtn.addEventListener("click", () => {
+      renderProfilesDirectory(); // Ensure it's fresh
+      profilesModal.classList.add("active");
+    });
+    closeProfilesBtn.addEventListener("click", () => profilesModal.classList.remove("active"));
+    profilesModal.addEventListener("click", (e) => { if (e.target === profilesModal) profilesModal.classList.remove("active"); });
+
+    generateBtn.addEventListener("click", splitTeams);
+    bottomReshuffleBtn.addEventListener("click", splitTeams);
 
     clearStorageBtn.addEventListener("click", () => { if (confirm("Clear room records and reset squad lists?")) { localStorage.clear(); location.reload(); } });
 
     renderChecklistPool();
+    renderProfilesDirectory();
   </script>
 </body>
 </html>
