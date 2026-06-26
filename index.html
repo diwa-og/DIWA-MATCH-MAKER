@@ -19,13 +19,13 @@
       --success: #32D74B;
       --warning: #FFD60A;
       --shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+      /* High-performance transitions */
       --anim-smooth: background-color 0.2s ease-out, border-color 0.2s ease-out, transform 0.2s ease-out, opacity 0.2s ease-out;
     }
 
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     html { scroll-behavior: smooth; height: 100%; }
 
-    /* FORCED APPLE SYSTEM FONT GLOBALLY */
     body {
       min-height: 100%; margin: 0; color: var(--text);
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -52,9 +52,18 @@
     .step-dot.active { background: var(--primary); border-color: var(--primary); color: #ffffff; box-shadow: 0 0 16px rgba(10, 132, 255, 0.4); }
     .step-dot.completed { background: var(--primary); border-color: var(--primary); color: #ffffff; }
 
-    .step-container { display: none; animation: stepFadeIn 0.25s ease-out forwards; }
-    .step-container.active { display: block; }
-    @keyframes stepFadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    /* --- GPU ACCELERATED SMOOTH TRANSITIONS (Replaced Animations) --- */
+    .steps-wrapper {
+      display: grid; grid-template-columns: 1fr; align-items: start;
+    }
+    .step-container {
+      grid-area: 1 / 1; visibility: hidden; opacity: 0; transform: translateY(15px); pointer-events: none;
+      transition: opacity 0.3s ease-out, transform 0.3s ease-out, visibility 0.3s;
+    }
+    .step-container.active {
+      visibility: visible; opacity: 1; transform: translateY(0); pointer-events: auto; z-index: 2;
+      transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+    }
 
     .glass-panel { background: var(--glass-panel); border: 1px solid var(--glass-border); border-radius: 24px; box-shadow: var(--shadow); padding: 24px 20px; margin-bottom: 20px; }
 
@@ -72,16 +81,12 @@
     .section-title h2 { font-size: 1.35rem; font-weight: 600; letter-spacing: -0.01em; margin: 0; }
 
     /* --- iOS SEGMENTED CONTROL --- */
-    .ios-segmented-control {
-      display: flex; background: rgba(255, 255, 255, 0.08); padding: 4px; border-radius: 14px; margin-bottom: 24px;
-    }
+    .ios-segmented-control { display: flex; background: rgba(255, 255, 255, 0.08); padding: 4px; border-radius: 14px; margin-bottom: 24px; }
     .segment-btn {
       flex: 1; text-align: center; padding: 10px; font-size: 0.95rem; font-weight: 700; color: var(--muted);
       border-radius: 10px; cursor: pointer; transition: all 0.2s ease-out; background: transparent; border: none; box-shadow: none;
     }
-    .segment-btn.active {
-      background: #2C2C2E; color: #fff; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
-    }
+    .segment-btn.active { background: #2C2C2E; color: #fff; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4); }
 
     /* --- CONTROLS --- */
     button {
@@ -130,9 +135,9 @@
       background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 14px; padding: 14px 16px; font-size: 0.95rem; font-weight: 600;
       display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;
     }
-    .accordion-toggle::after { content: "▼"; font-size: 0.75rem; color: var(--muted); transition: transform 0.2s ease; }
+    .accordion-toggle::after { content: "▼"; font-size: 0.75rem; color: var(--muted); transition: transform 0.2s ease-out; }
     .accordion-toggle.active::after { transform: rotate(180deg); }
-    .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; background: rgba(0, 0, 0, 0.3); border-radius: 0 0 14px 14px; }
+    .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; background: rgba(0, 0, 0, 0.3); border-radius: 0 0 14px 14px; }
     .accordion-content.open { max-height: 380px; padding: 16px; border: 1px solid rgba(255, 255, 255, 0.05); border-top: none; margin-top: -10px; margin-bottom: 12px; }
 
     .inline-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
@@ -168,12 +173,12 @@
     /* --- POP-UP MODALS --- */
     .modal-overlay {
       position: fixed; inset: 0; z-index: 1000; background: rgba(0, 0, 0, 0.75); display: flex; align-items: center; justify-content: center;
-      opacity: 0; pointer-events: none; transition: opacity 0.2s ease-out; padding: 16px;
+      opacity: 0; pointer-events: none; transition: opacity 0.25s ease-out; padding: 16px;
     }
     .modal-overlay.active { opacity: 1; pointer-events: auto; }
     .modal-window {
       background: #1C1C1E; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 28px; width: 100%; max-width: 440px; padding: 28px; 
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5); transform: scale(0.95); transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1); position: relative; max-height: 85vh; display: flex; flex-direction: column;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5); transform: scale(0.95); transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1); position: relative; max-height: 85vh; display: flex; flex-direction: column;
     }
     .modal-overlay.active .modal-window { transform: scale(1); }
     .close-modal-btn {
@@ -206,10 +211,7 @@
 
     /* --- SAVED MATCHES LIST UI --- */
     .saved-matches-list { display: flex; flex-direction: column; gap: 12px; overflow-y: auto; max-height: 60vh; padding-right: 4px; }
-    .saved-match-item {
-      background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px;
-      padding: 16px; cursor: pointer; transition: var(--anim-smooth); display: flex; flex-direction: column; gap: 6px;
-    }
+    .saved-match-item { background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 16px; cursor: pointer; transition: var(--anim-smooth); display: flex; flex-direction: column; gap: 6px; }
     .saved-match-item:hover { background: rgba(255, 255, 255, 0.1); border-color: var(--primary); }
     .saved-match-title { font-size: 1.15rem; font-weight: 700; color: #fff; }
     .saved-match-meta { font-size: 0.85rem; color: var(--muted); display: flex; justify-content: space-between; }
@@ -250,76 +252,117 @@
       <div class="step-dot" id="dot-3">3</div>
     </div>
 
-    <div class="step-container active" id="step-1">
-      <section class="hero">
-        <h1 class="professional-title">DIWA &lt;3</h1>
-        <p class="hero-copy">Match Maker</p>
-      </section>
+    <div class="steps-wrapper">
+      
+      <div class="step-container active" id="step-1">
+        <section class="hero">
+          <h1 class="professional-title">DIWA &lt;3</h1>
+          <p class="hero-copy">Match Maker</p>
+        </section>
 
-      <div class="glass-panel">
-        
-        <div class="ios-segmented-control" id="modeSwitcher">
-          <button class="segment-btn active" id="tabTeams" data-mode="teams">Teams Mode</button>
-          <button class="segment-btn" id="tabSingles" data-mode="singles">Singles Mode</button>
-        </div>
+        <div class="glass-panel">
+          
+          <div class="ios-segmented-control" id="modeSwitcher">
+            <button class="segment-btn active" id="tabTeams" data-mode="teams">Teams Mode</button>
+            <button class="segment-btn" id="tabSingles" data-mode="singles">Singles Mode</button>
+          </div>
 
-        <div class="section-title with-action">
-          <h2>Select Squad</h2>
-          <div style="display: flex; gap: 8px;">
-            <button type="button" class="secondary" id="selectAllBtn">All</button>
-            <button type="button" class="secondary" id="selectNoneBtn">None</button>
+          <div class="section-title with-action">
+            <h2>Select Squad</h2>
+            <div style="display: flex; gap: 8px;">
+              <button type="button" class="secondary" id="selectAllBtn">All</button>
+              <button type="button" class="secondary" id="selectNoneBtn">None</button>
+            </div>
+          </div>
+          
+          <p style="font-size:0.8rem; color:var(--muted); margin-top:-10px; text-align:center;">Tip: Hold down on a player to view profile</p>
+
+          <form id="bulkSquadForm">
+            <div class="checklist-container" id="checklistContainer"></div>
+            <button type="submit" style="margin-bottom: 16px;">Confirm Lineup</button>
+          </form>
+
+          <button type="button" class="accordion-toggle" id="accordionToggle">➕ Add New Player</button>
+          <div class="accordion-content" id="accordionContent">
+            <div class="inline-fields">
+              <input id="newPlayerName" type="text" placeholder="Name">
+              <select id="newSeparation">
+                <option value="None">Tier: None</option>
+                <option value="O">Tier: O</option><option value="A">Tier: A</option><option value="B">Tier: B</option>
+                <option value="C">Tier: C</option><option value="D">Tier: D</option><option value="E">Tier: E</option>
+                <option value="F">Tier: F</option><option value="G">Tier: G</option><option value="H">Tier: H</option>
+                <option value="I">Tier: I</option><option value="J">Tier: J</option><option value="K">Tier: K</option>
+                <option value="L">Tier: L</option><option value="M">Tier: M</option><option value="N">Tier: N</option>
+              </select>
+            </div>
+            <div class="inline-fields">
+              <select id="newRole">
+                <option value="Batsman">Batsman</option>
+                <option value="Bowler">Bowler</option>
+                <option value="All-Rounder">All-Rounder</option>
+                <option value="Bats-Women">Bats-Women</option>
+                <option value="Wicket Keeper">Wicket Keeper</option>
+              </select>
+              <select id="newGender">
+                <option value="M">Male (M)</option>
+                <option value="F">Female (F)</option>
+              </select>
+            </div>
+            <button type="button" id="addNewPlayerBtn" style="padding: 12px; border-radius: 12px;">Save & Add</button>
           </div>
         </div>
-        
-        <p style="font-size:0.8rem; color:var(--muted); margin-top:-10px; text-align:center;">Tip: Hold down on a player to view profile</p>
 
-        <form id="bulkSquadForm">
-          <div class="checklist-container" id="checklistContainer"></div>
-          <button type="submit" style="margin-bottom: 16px;">Confirm Lineup</button>
-        </form>
-
-        <button type="button" class="accordion-toggle" id="accordionToggle">➕ Add New Player</button>
-        <div class="accordion-content" id="accordionContent">
-          <div class="inline-fields">
-            <input id="newPlayerName" type="text" placeholder="Name">
-            <select id="newSeparation">
-              <option value="None">Tier: None</option>
-              <option value="O">Tier: O</option><option value="A">Tier: A</option><option value="B">Tier: B</option>
-              <option value="C">Tier: C</option><option value="D">Tier: D</option><option value="E">Tier: E</option>
-              <option value="F">Tier: F</option><option value="G">Tier: G</option><option value="H">Tier: H</option>
-              <option value="I">Tier: I</option><option value="J">Tier: J</option><option value="K">Tier: K</option>
-              <option value="L">Tier: L</option><option value="M">Tier: M</option><option value="N">Tier: N</option>
-            </select>
-          </div>
-          <div class="inline-fields">
-            <select id="newRole">
-              <option value="Batsman">Batsman</option>
-              <option value="Bowler">Bowler</option>
-              <option value="All-Rounder">All-Rounder</option>
-              <option value="Bats-Women">Bats-Women</option>
-              <option value="Wicket Keeper">Wicket Keeper</option>
-            </select>
-            <select id="newGender">
-              <option value="M">Male (M)</option>
-              <option value="F">Female (F)</option>
-            </select>
-          </div>
-          <button type="button" id="addNewPlayerBtn" style="padding: 12px; border-radius: 12px;">Save & Add</button>
+        <div style="padding: 0 4px; display: flex; flex-direction: column; gap: 12px;">
+          <button type="button" id="loadSavedMatchBtn" style="background: rgba(50, 215, 75, 0.15); color: var(--success); border: 1px solid rgba(50, 215, 75, 0.3); box-shadow: none; display: none;">
+            ▶️ RESUME SAVED MATCH
+          </button>
+          <button type="button" id="openProfilesBtn" style="background: rgba(255,255,255,0.08); color: var(--text); border: 1px solid rgba(255,255,255,0.15); box-shadow: none;">
+            👤 OPEN PLAYER 🏌🏻 PROFILE
+          </button>
+          <button type="button" class="danger-outline" id="clearStorageBtn">Wipe Room</button>
         </div>
       </div>
 
-      <div style="padding: 0 4px; display: flex; flex-direction: column; gap: 12px;">
-        <button type="button" id="loadSavedMatchBtn" style="background: rgba(50, 215, 75, 0.15); color: var(--success); border: 1px solid rgba(50, 215, 75, 0.3); box-shadow: none; display: none;">
-          ▶️ RESUME SAVED MATCH
-        </button>
-        <button type="button" id="openProfilesBtn" style="background: rgba(255,255,255,0.08); color: var(--text); border: 1px solid rgba(255,255,255,0.15); box-shadow: none;">
-          👤 OPEN PLAYER 🏌🏻 PROFILE
-        </button>
-        <button type="button" class="danger-outline" id="clearStorageBtn">Wipe Room</button>
+      <div class="step-container" id="step-2">
+        <div class="glass-panel text-center" style="text-align: center; padding: 36px 20px;">
+          <div class="summary-grid" style="margin-bottom: 26px;">
+            <div>
+              <span id="totalPlayers">0</span>
+              <small style="color:var(--muted); margin-left:8px; font-weight:600;">Active Confirmed</small>
+            </div>
+          </div>
+          <p class="hero-copy" id="readyTitle" style="margin-bottom: 28px; font-size: 1.15rem; color: #fff;">Ready ah Maamey 😼!?</p>
+          <button type="button" id="generateBtn" style="font-size: 1.15rem; padding: 16px;">Split 🪓</button>
+          <div class="button-flow-group">
+            <button type="button" class="back-btn" onclick="history.back()">Back</button>
+          </div>
+        </div>
       </div>
-    </div>
 
-    <div class="modal-overlay" id="singleProfileModal">
+      <div class="step-container" id="step-3">
+        <section id="teams" class="teams-section">
+          <div class="teams-grid">
+            <article class="glass-panel team-card" id="teamAWrapper">
+              <div class="team-heading"><h3 id="teamATitle">Team A</h3></div>
+              <div id="teamA" class="team-list"></div>
+            </article>
+            
+            <article class="glass-panel team-card" id="teamBWrapper">
+              <div class="team-heading"><h3 id="teamBTitle">Team B</h3></div>
+              <div id="teamB" class="team-list"></div>
+            </article>
+          </div>
+
+          <div class="teams-actions-footer" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; margin-top: 16px;">
+            <button type="button" id="bottomReshuffleBtn" style="font-size:0.9rem; padding:12px;">Split 🪓 Again</button>
+            <button type="button" id="coinFlipToggleBtn" class="secondary" style="background: rgba(255,255,255,0.08); border-radius: 14px; font-size:0.9rem; padding:12px;">Flip 🪙 Coin</button>
+            <button type="button" class="secondary" onclick="goToStep(1)" style="font-size:0.9rem; padding:12px; color: var(--primary);">Edit Squad</button>
+            <button type="button" id="saveTeamsBtn" class="secondary" style="font-size:0.9rem; padding:12px; color: var(--success); border-color: rgba(50, 215, 75, 0.4);">Save Match</button>
+          </div>
+        </section>
+      </div>
+
+    </div> <div class="modal-overlay" id="singleProfileModal">
       <div class="modal-window" style="max-width: 340px;">
         <button type="button" class="close-modal-btn" id="closeSingleProfileBtn">✕</button>
         <div class="profile-card-content" id="singleProfileContent"></div>
@@ -342,66 +385,28 @@
       </div>
     </div>
 
-    <div class="step-container" id="step-2">
-      <div class="glass-panel text-center" style="text-align: center; padding: 36px 20px;">
-        <div class="summary-grid" style="margin-bottom: 26px;">
-          <div>
-            <span id="totalPlayers">0</span>
-            <small style="color:var(--muted); margin-left:8px; font-weight:600;">Active Confirmed</small>
+    <div class="modal-overlay" id="coinFlipModal">
+      <div class="modal-window" style="max-width: 360px;">
+        <button type="button" class="close-modal-btn" id="closeModalBtn">✕</button>
+        <div class="coin-wrapper">
+          <div class="coin-container">
+            <div class="coin" id="virtualCoin">
+              <div class="coin-face coin-front"></div>
+              <div class="coin-face coin-back"></div>
+            </div>
           </div>
-        </div>
-        <p class="hero-copy" id="readyTitle" style="margin-bottom: 28px; font-size: 1.15rem; color: #fff;">Ready ah Maamey!?</p>
-        <button type="button" id="generateBtn" style="font-size: 1.15rem; padding: 16px;">Split 🪓</button>
-        <div class="button-flow-group">
-          <button type="button" class="back-btn" onclick="goToStep(1)">Back</button>
+          <button type="button" id="executeFlipBtn" style="width: auto; padding: 12px 32px; border-radius: 12px;">Toss Coin</button>
+          <div class="toss-result-banner" id="tossResultText">Flip to check result</div>
         </div>
       </div>
     </div>
 
-    <div class="step-container" id="step-3">
-      <section id="teams" class="teams-section">
-        <div class="modal-overlay" id="coinFlipModal">
-          <div class="modal-window" style="max-width: 360px;">
-            <button type="button" class="close-modal-btn" id="closeModalBtn">✕</button>
-            <div class="coin-wrapper">
-              <div class="coin-container">
-                <div class="coin" id="virtualCoin">
-                  <div class="coin-face coin-front"></div>
-                  <div class="coin-face coin-back"></div>
-                </div>
-              </div>
-              <button type="button" id="executeFlipBtn" style="width: auto; padding: 12px 32px; border-radius: 12px;">Toss Coin</button>
-              <div class="toss-result-banner" id="tossResultText">Flip to check result</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="teams-grid">
-          <article class="glass-panel team-card" id="teamAWrapper">
-            <div class="team-heading"><h3 id="teamATitle">Team A</h3></div>
-            <div id="teamA" class="team-list"></div>
-          </article>
-          
-          <article class="glass-panel team-card" id="teamBWrapper">
-            <div class="team-heading"><h3 id="teamBTitle">Team B</h3></div>
-            <div id="teamB" class="team-list"></div>
-          </article>
-        </div>
-
-        <div class="teams-actions-footer" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; margin-top: 16px;">
-          <button type="button" id="bottomReshuffleBtn" style="font-size:0.9rem; padding:12px;">Split 🪓 Again</button>
-          <button type="button" id="coinFlipToggleBtn" class="secondary" style="background: rgba(255,255,255,0.08); border-radius: 14px; font-size:0.9rem; padding:12px;">Flip 🪙 Coin</button>
-          <button type="button" class="secondary" onclick="goToStep(1)" style="font-size:0.9rem; padding:12px; color: var(--primary);">Edit Squad</button>
-          <button type="button" id="saveTeamsBtn" class="secondary" style="font-size:0.9rem; padding:12px; color: var(--success); border-color: rgba(50, 215, 75, 0.4);">Save Match</button>
-        </div>
-      </section>
-    </div>
   </main>
 
   <script>
-    const storageKeyActive = "team-marking-active-bulk-v40"; 
-    const storageKeyMaster = "team-marking-master-bulk-v40"; 
-    const storageKeySavedMatchesList = "team-marking-saved-matches-list-v40";
+    const storageKeyActive = "team-marking-active-bulk-v42"; 
+    const storageKeyMaster = "team-marking-master-bulk-v42"; 
+    const storageKeySavedMatchesList = "team-marking-saved-matches-list-v42";
 
     const INITIAL_MASTER_POOL = [
       { id: "p1", name: "DIWA OG", separation: "O", role: "All-Rounder", gender: "M" }, 
@@ -469,12 +474,15 @@
     let activePlayers = loadActivePlayers();
     let currentStep = 1;
     let currentGeneratedMatch = null;
-    let appMatchMode = 'teams'; // 'teams' or 'singles'
+    let appMatchMode = 'teams'; 
 
-    /* --- HARDWARE BACK BUTTON FIX (HISTORY API) --- */
+    /* --- HARDWARE BACK BUTTON (MODALS & NAVIGATION) --- */
     history.replaceState({ step: 1 }, "Step 1", "#step1");
 
     window.addEventListener('popstate', (event) => {
+      // Close all modals safely first
+      document.querySelectorAll('.modal-overlay.active').forEach(m => m.classList.remove('active'));
+      
       if (event.state && event.state.step) {
         goToStep(event.state.step, false); 
       } else {
@@ -482,8 +490,22 @@
       }
     });
 
+    function openModal(modalElement) {
+      modalElement.classList.add("active");
+      history.pushState({ step: currentStep, modal: modalElement.id }, "Modal", "#" + modalElement.id);
+    }
+
+    function closeModal(modalElement) {
+      modalElement.classList.remove("active");
+      if (history.state && history.state.modal === modalElement.id) {
+        history.back();
+      }
+    }
+
     function goToStep(stepNum, pushStateToHistory = true) {
+      if (stepNum === currentStep) return;
       currentStep = stepNum;
+
       document.querySelectorAll('.step-container').forEach(panel => panel.classList.remove('active'));
       document.getElementById(`step-${stepNum}`).classList.add('active');
       
@@ -510,7 +532,7 @@
       tabTeams.classList.add("active");
       tabSingles.classList.remove("active");
       generateBtn.innerHTML = "Split 🪓";
-      readyTitle.innerText = "Ready ah Maamey!?";
+      readyTitle.innerText = "Ready ah Maamey 😼!?";
     });
 
     tabSingles.addEventListener("click", () => {
@@ -518,7 +540,7 @@
       tabSingles.classList.add("active");
       tabTeams.classList.remove("active");
       generateBtn.innerHTML = "Generate Order 🎲";
-      readyTitle.innerText = "Ready to randomize order?";
+      readyTitle.innerText = "Ready ah Maamey 😼!?";
     });
 
     function getCryptoRandom() {
@@ -622,11 +644,11 @@
           <span class="badge badge-gender">${genderStr === 'M' ? 'Male' : (genderStr === 'F' ? 'Female' : genderStr)}</span>
         </div>
       `;
-      singleProfileModal.classList.add("active");
+      openModal(singleProfileModal);
     }
 
-    closeSingleProfileBtn.addEventListener("click", () => singleProfileModal.classList.remove("active"));
-    singleProfileModal.addEventListener("click", (e) => { if (e.target === singleProfileModal) singleProfileModal.classList.remove("active"); });
+    closeSingleProfileBtn.addEventListener("click", () => closeModal(singleProfileModal));
+    singleProfileModal.addEventListener("click", (e) => { if (e.target === singleProfileModal) closeModal(singleProfileModal); });
 
     function renderProfilesDirectory() {
       profilesGrid.innerHTML = "";
@@ -666,12 +688,7 @@
     /* MAIN GENERATION ROUTER */
     function handleGeneration() {
       if (activePlayers.length < 2) { alert("Please pick at least 2 players!"); return; }
-      
-      if (appMatchMode === 'teams') {
-        splitTeams();
-      } else {
-        generateSingles();
-      }
+      if (appMatchMode === 'teams') { splitTeams(); } else { generateSingles(); }
     }
 
     function splitTeams() {
@@ -716,7 +733,7 @@
       const shuffledList = secureShuffle([...activePlayers]);
       
       setupStep3View('singles');
-      renderTeam(teamA, shuffledList, null); // Render in Team A block
+      renderTeam(teamA, shuffledList, null); 
       
       currentGeneratedMatch = { mode: 'singles', teamA: shuffledList };
       goToStep(3);
@@ -732,12 +749,12 @@
         teamBWrapper.style.display = "block";
         teamATitle.innerText = "Team A";
         bottomReshuffleBtn.innerText = "Split 🪓 Again";
-        coinFlipToggleBtn.style.display = ""; // restores to default inline-block layout in the CSS Grid
+        coinFlipToggleBtn.style.display = ""; 
       } else {
         teamBWrapper.style.display = "none";
         teamATitle.innerText = "Playing Order";
         bottomReshuffleBtn.innerText = "Shuffle 🔀 Again";
-        coinFlipToggleBtn.style.display = "none"; // hides button since no teams involved
+        coinFlipToggleBtn.style.display = "none"; 
       }
     }
 
@@ -840,7 +857,7 @@
         `;
         
         card.addEventListener("click", () => {
-          savedMatchesModal.classList.remove("active");
+          closeModal(savedMatchesModal);
           const match = savedItem.data;
           currentGeneratedMatch = match;
           appMatchMode = match.mode || 'teams';
@@ -855,20 +872,18 @@
         
         savedMatchesList.appendChild(card);
       });
-      
-      savedMatchesModal.classList.add("active");
+      openModal(savedMatchesModal);
     });
 
-    closeSavedMatchesBtn.addEventListener("click", () => savedMatchesModal.classList.remove("active"));
-    savedMatchesModal.addEventListener("click", (e) => { if (e.target === savedMatchesModal) savedMatchesModal.classList.remove("active"); });
+    closeSavedMatchesBtn.addEventListener("click", () => closeModal(savedMatchesModal));
+    savedMatchesModal.addEventListener("click", (e) => { if (e.target === savedMatchesModal) closeModal(savedMatchesModal); });
 
-    // Initialize display state
     checkSavedMatches();
 
     /* --- MISC UI EVENTS --- */
-    coinFlipToggleBtn.addEventListener("click", () => coinFlipModal.classList.add("active"));
-    closeModalBtn.addEventListener("click", () => coinFlipModal.classList.remove("active"));
-    coinFlipModal.addEventListener("click", (e) => { if (e.target === coinFlipModal) coinFlipModal.classList.remove("active"); });
+    coinFlipToggleBtn.addEventListener("click", () => openModal(coinFlipModal));
+    closeModalBtn.addEventListener("click", () => closeModal(coinFlipModal));
+    coinFlipModal.addEventListener("click", (e) => { if (e.target === coinFlipModal) closeModal(coinFlipModal); });
 
     executeFlipBtn.addEventListener("click", () => {
       executeFlipBtn.disabled = true; tossResultText.textContent = "Flipping...";
@@ -878,9 +893,9 @@
       setTimeout(() => { tossResultText.innerHTML = isHeads ? "🪙 <strong>HEADS!</strong>" : "🪙 <strong>TAILS!</strong>"; executeFlipBtn.disabled = false; }, 1400);
     });
     
-    openProfilesBtn.addEventListener("click", () => { renderProfilesDirectory(); profilesModal.classList.add("active"); });
-    closeProfilesBtn.addEventListener("click", () => profilesModal.classList.remove("active"));
-    profilesModal.addEventListener("click", (e) => { if (e.target === profilesModal) profilesModal.classList.remove("active"); });
+    openProfilesBtn.addEventListener("click", () => { renderProfilesDirectory(); openModal(profilesModal); });
+    closeProfilesBtn.addEventListener("click", () => closeModal(profilesModal));
+    profilesModal.addEventListener("click", (e) => { if (e.target === profilesModal) closeModal(profilesModal); });
 
     generateBtn.addEventListener("click", handleGeneration);
     bottomReshuffleBtn.addEventListener("click", handleGeneration);
