@@ -71,7 +71,7 @@
     .with-action { align-items: center; display: flex; justify-content: space-between; margin-bottom: 20px; }
     .section-title h2 { font-size: 1.35rem; font-weight: 600; letter-spacing: -0.01em; margin: 0; }
 
-    /* --- iOS SEGMENTED CONTROL (TEAMS VS SINGLES) --- */
+    /* --- iOS SEGMENTED CONTROL --- */
     .ios-segmented-control {
       display: flex; background: rgba(255, 255, 255, 0.08); padding: 4px; border-radius: 14px; margin-bottom: 24px;
     }
@@ -154,10 +154,7 @@
     .team-player { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 16px; padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; }
     .team-player-left { display: flex; align-items: center; gap: 14px; width: 100%; }
     
-    /* NUMBERING BADGE UI */
-    .player-order-number {
-      font-size: 1.25rem; font-weight: 900; color: rgba(255, 255, 255, 0.3); width: 28px; text-align: right; margin-right: 4px; flex-shrink: 0;
-    }
+    .player-order-number { font-size: 1.25rem; font-weight: 900; color: rgba(255, 255, 255, 0.3); width: 28px; text-align: right; margin-right: 4px; flex-shrink: 0; }
     
     .captain-row { background: rgba(255, 214, 10, 0.15) !important; border: 1px solid rgba(255, 214, 10, 0.4) !important; box-shadow: 0 0 15px rgba(255, 214, 10, 0.1); }
     .captain-badge { display: inline-block; font-size: 0.7rem; font-weight: 800; color: var(--warning); background: rgba(255, 214, 10, 0.25); padding: 3px 8px; border-radius: 6px; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
@@ -392,7 +389,7 @@
         </div>
 
         <div class="teams-actions-footer" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; margin-top: 16px;">
-          <button type="button" id="bottomReshuffleBtn" style="font-size:0.9rem; padding:12px;">Generate Again</button>
+          <button type="button" id="bottomReshuffleBtn" style="font-size:0.9rem; padding:12px;">Split 🪓 Again</button>
           <button type="button" id="coinFlipToggleBtn" class="secondary" style="background: rgba(255,255,255,0.08); border-radius: 14px; font-size:0.9rem; padding:12px;">Flip 🪙 Coin</button>
           <button type="button" class="secondary" onclick="goToStep(1)" style="font-size:0.9rem; padding:12px; color: var(--primary);">Edit Squad</button>
           <button type="button" id="saveTeamsBtn" class="secondary" style="font-size:0.9rem; padding:12px; color: var(--success); border-color: rgba(50, 215, 75, 0.4);">Save Match</button>
@@ -402,9 +399,9 @@
   </main>
 
   <script>
-    const storageKeyActive = "team-marking-active-bulk-v39"; 
-    const storageKeyMaster = "team-marking-master-bulk-v39"; 
-    const storageKeySavedMatchesList = "team-marking-saved-matches-list-v39";
+    const storageKeyActive = "team-marking-active-bulk-v40"; 
+    const storageKeyMaster = "team-marking-master-bulk-v40"; 
+    const storageKeySavedMatchesList = "team-marking-saved-matches-list-v40";
 
     const INITIAL_MASTER_POOL = [
       { id: "p1", name: "DIWA OG", separation: "O", role: "All-Rounder", gender: "M" }, 
@@ -729,13 +726,18 @@
       const teamAWrapper = document.getElementById("teamAWrapper");
       const teamBWrapper = document.getElementById("teamBWrapper");
       const teamATitle = document.getElementById("teamATitle");
+      const coinFlipToggleBtn = document.getElementById("coinFlipToggleBtn");
       
       if (mode === 'teams') {
         teamBWrapper.style.display = "block";
         teamATitle.innerText = "Team A";
+        bottomReshuffleBtn.innerText = "Split 🪓 Again";
+        coinFlipToggleBtn.style.display = ""; // restores to default inline-block layout in the CSS Grid
       } else {
         teamBWrapper.style.display = "none";
         teamATitle.innerText = "Playing Order";
+        bottomReshuffleBtn.innerText = "Shuffle 🔀 Again";
+        coinFlipToggleBtn.style.display = "none"; // hides button since no teams involved
       }
     }
 
