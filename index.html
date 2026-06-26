@@ -56,10 +56,8 @@
     .step-container.active { display: block; }
     @keyframes stepFadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* --- SOLID PANEL CONTAINER --- */
     .glass-panel { background: var(--glass-panel); border: 1px solid var(--glass-border); border-radius: 24px; box-shadow: var(--shadow); padding: 24px 20px; margin-bottom: 20px; }
 
-    /* --- HERO HEADER --- */
     .hero { padding: 10px 4px 24px; text-align: center; }
     .professional-title {
       font-size: 2.8rem; font-weight: 800; letter-spacing: -0.02em; margin: 0 0 6px;
@@ -72,6 +70,18 @@
     .summary-grid span { font-size: 2rem; font-weight: 700; color: var(--text); }
     .with-action { align-items: center; display: flex; justify-content: space-between; margin-bottom: 20px; }
     .section-title h2 { font-size: 1.35rem; font-weight: 600; letter-spacing: -0.01em; margin: 0; }
+
+    /* --- iOS SEGMENTED CONTROL (TEAMS VS SINGLES) --- */
+    .ios-segmented-control {
+      display: flex; background: rgba(255, 255, 255, 0.08); padding: 4px; border-radius: 14px; margin-bottom: 24px;
+    }
+    .segment-btn {
+      flex: 1; text-align: center; padding: 10px; font-size: 0.95rem; font-weight: 700; color: var(--muted);
+      border-radius: 10px; cursor: pointer; transition: all 0.2s ease-out; background: transparent; border: none; box-shadow: none;
+    }
+    .segment-btn.active {
+      background: #2C2C2E; color: #fff; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+    }
 
     /* --- CONTROLS --- */
     button {
@@ -140,8 +150,14 @@
     .teams-grid { display: flex; flex-direction: column; gap: 16px; }
     .team-heading h3 { font-size: 1.15rem; font-weight: 600; margin: 0; color: var(--text); border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; }
     .team-list { display: grid; gap: 10px; margin-top: 14px; }
+    
     .team-player { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 16px; padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; }
-    .team-player-left { display: flex; align-items: center; gap: 14px; }
+    .team-player-left { display: flex; align-items: center; gap: 14px; width: 100%; }
+    
+    /* NUMBERING BADGE UI */
+    .player-order-number {
+      font-size: 1.25rem; font-weight: 900; color: rgba(255, 255, 255, 0.3); width: 28px; text-align: right; margin-right: 4px; flex-shrink: 0;
+    }
     
     .captain-row { background: rgba(255, 214, 10, 0.15) !important; border: 1px solid rgba(255, 214, 10, 0.4) !important; box-shadow: 0 0 15px rgba(255, 214, 10, 0.1); }
     .captain-badge { display: inline-block; font-size: 0.7rem; font-weight: 800; color: var(--warning); background: rgba(255, 214, 10, 0.25); padding: 3px 8px; border-radius: 6px; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
@@ -168,7 +184,7 @@
       color: var(--muted); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1rem; z-index: 10;
     }
 
-    /* --- INDIVIDUAL PLAYER PROFILE POPUP --- */
+    /* --- PROFILE POPUP --- */
     .profile-card-content { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 16px; padding: 10px 0; }
     .profile-card-content .player-avatar { width: 200px; height: 200px; font-size: 6rem; border: 4px solid var(--primary); box-shadow: 0 0 30px rgba(10, 132, 255, 0.3); background: #2C2C2E; }
     .profile-card-content h3 { margin: 0; font-size: 2.2rem; font-weight: 800; color: #fff; letter-spacing: -0.02em; }
@@ -180,7 +196,7 @@
     .badge-wk { background: rgba(192, 132, 252, 0.15); color: #c084fc; border: 1px solid rgba(192, 132, 252, 0.3); }
     .badge-gender { background: rgba(255, 255, 255, 0.1); color: #f8fafc; border: 1px solid rgba(255, 255, 255, 0.2); }
 
-    /* --- DIRECTORY GRID POPUP --- */
+    /* --- DIRECTORY GRID & SAVED MATCHES LIST POPUP --- */
     .profiles-header { font-size: 1.5rem; font-weight: 700; color: #fff; margin-bottom: 20px; text-align: center; }
     .profiles-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; overflow-y: auto; padding-right: 4px; padding-bottom: 10px; max-height: 60vh; }
     .profiles-grid::-webkit-scrollbar { width: 6px; }
@@ -190,6 +206,17 @@
     .mini-profile-name { font-size: 0.95rem; font-weight: 700; color: #fff; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .mini-badges { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; width: 100%; }
     .mini-badges .badge { font-size: 0.65rem; padding: 4px 8px; border-radius: 8px; }
+
+    /* --- SAVED MATCHES LIST UI --- */
+    .saved-matches-list { display: flex; flex-direction: column; gap: 12px; overflow-y: auto; max-height: 60vh; padding-right: 4px; }
+    .saved-match-item {
+      background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px;
+      padding: 16px; cursor: pointer; transition: var(--anim-smooth); display: flex; flex-direction: column; gap: 6px;
+    }
+    .saved-match-item:hover { background: rgba(255, 255, 255, 0.1); border-color: var(--primary); }
+    .saved-match-title { font-size: 1.15rem; font-weight: 700; color: #fff; }
+    .saved-match-meta { font-size: 0.85rem; color: var(--muted); display: flex; justify-content: space-between; }
+    .match-type-badge { background: rgba(10, 132, 255, 0.2); color: #5AC8FA; padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; }
 
     /* --- DYNAMIC TOSS COIN DESIGN --- */
     .coin-wrapper { display: flex; flex-direction: column; align-items: center; gap: 24px; }
@@ -233,6 +260,12 @@
       </section>
 
       <div class="glass-panel">
+        
+        <div class="ios-segmented-control" id="modeSwitcher">
+          <button class="segment-btn active" id="tabTeams" data-mode="teams">Teams Mode</button>
+          <button class="segment-btn" id="tabSingles" data-mode="singles">Singles Mode</button>
+        </div>
+
         <div class="section-title with-action">
           <h2>Select Squad</h2>
           <div style="display: flex; gap: 8px;">
@@ -304,6 +337,14 @@
       </div>
     </div>
 
+    <div class="modal-overlay" id="savedMatchesModal">
+      <div class="modal-window">
+        <button type="button" class="close-modal-btn" id="closeSavedMatchesBtn">✕</button>
+        <h3 class="profiles-header">Saved Matches</h3>
+        <div class="saved-matches-list" id="savedMatchesList"></div>
+      </div>
+    </div>
+
     <div class="step-container" id="step-2">
       <div class="glass-panel text-center" style="text-align: center; padding: 36px 20px;">
         <div class="summary-grid" style="margin-bottom: 26px;">
@@ -312,7 +353,7 @@
             <small style="color:var(--muted); margin-left:8px; font-weight:600;">Active Confirmed</small>
           </div>
         </div>
-        <p class="hero-copy" style="margin-bottom: 28px; font-size: 1.15rem; color: #fff;">Ready ah Maamey!?</p>
+        <p class="hero-copy" id="readyTitle" style="margin-bottom: 28px; font-size: 1.15rem; color: #fff;">Ready ah Maamey!?</p>
         <button type="button" id="generateBtn" style="font-size: 1.15rem; padding: 16px;">Split 🪓</button>
         <div class="button-flow-group">
           <button type="button" class="back-btn" onclick="goToStep(1)">Back</button>
@@ -339,30 +380,31 @@
         </div>
 
         <div class="teams-grid">
-          <article class="glass-panel team-card">
-            <div class="team-heading"><h3>Team A</h3></div>
+          <article class="glass-panel team-card" id="teamAWrapper">
+            <div class="team-heading"><h3 id="teamATitle">Team A</h3></div>
             <div id="teamA" class="team-list"></div>
           </article>
-          <article class="glass-panel team-card">
-            <div class="team-heading"><h3>Team B</h3></div>
+          
+          <article class="glass-panel team-card" id="teamBWrapper">
+            <div class="team-heading"><h3 id="teamBTitle">Team B</h3></div>
             <div id="teamB" class="team-list"></div>
           </article>
         </div>
 
         <div class="teams-actions-footer" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; margin-top: 16px;">
-          <button type="button" id="bottomReshuffleBtn" style="font-size:0.9rem; padding:12px;">Split 🪓 Again</button>
+          <button type="button" id="bottomReshuffleBtn" style="font-size:0.9rem; padding:12px;">Generate Again</button>
           <button type="button" id="coinFlipToggleBtn" class="secondary" style="background: rgba(255,255,255,0.08); border-radius: 14px; font-size:0.9rem; padding:12px;">Flip 🪙 Coin</button>
           <button type="button" class="secondary" onclick="goToStep(1)" style="font-size:0.9rem; padding:12px; color: var(--primary);">Edit Squad</button>
-          <button type="button" id="saveTeamsBtn" class="secondary" style="font-size:0.9rem; padding:12px; color: var(--success); border-color: rgba(50, 215, 75, 0.4);">Save Teams</button>
+          <button type="button" id="saveTeamsBtn" class="secondary" style="font-size:0.9rem; padding:12px; color: var(--success); border-color: rgba(50, 215, 75, 0.4);">Save Match</button>
         </div>
       </section>
     </div>
   </main>
 
   <script>
-    const storageKeyActive = "team-marking-active-bulk-v38"; 
-    const storageKeyMaster = "team-marking-master-bulk-v38"; 
-    const storageKeySavedMatch = "team-marking-saved-match-v38";
+    const storageKeyActive = "team-marking-active-bulk-v39"; 
+    const storageKeyMaster = "team-marking-master-bulk-v39"; 
+    const storageKeySavedMatchesList = "team-marking-saved-matches-list-v39";
 
     const INITIAL_MASTER_POOL = [
       { id: "p1", name: "DIWA OG", separation: "O", role: "All-Rounder", gender: "M" }, 
@@ -422,17 +464,22 @@
     const closeSingleProfileBtn = document.getElementById("closeSingleProfileBtn");
     const singleProfileContent = document.getElementById("singleProfileContent");
 
+    const savedMatchesModal = document.getElementById("savedMatchesModal");
+    const closeSavedMatchesBtn = document.getElementById("closeSavedMatchesBtn");
+    const savedMatchesList = document.getElementById("savedMatchesList");
+
     let masterPool = loadMasterPool();
     let activePlayers = loadActivePlayers();
     let currentStep = 1;
     let currentGeneratedMatch = null;
+    let appMatchMode = 'teams'; // 'teams' or 'singles'
 
-    /* HARDWARE BACK BUTTON FIX (HISTORY API) */
+    /* --- HARDWARE BACK BUTTON FIX (HISTORY API) --- */
     history.replaceState({ step: 1 }, "Step 1", "#step1");
 
     window.addEventListener('popstate', (event) => {
       if (event.state && event.state.step) {
-        goToStep(event.state.step, false); // false = don't push state again
+        goToStep(event.state.step, false); 
       } else {
         goToStep(1, false);
       }
@@ -455,6 +502,27 @@
         history.pushState({ step: stepNum }, "Step " + stepNum, "#step" + stepNum);
       }
     }
+
+    /* --- MODE SWITCHER LOGIC --- */
+    const tabTeams = document.getElementById("tabTeams");
+    const tabSingles = document.getElementById("tabSingles");
+    const readyTitle = document.getElementById("readyTitle");
+
+    tabTeams.addEventListener("click", () => {
+      appMatchMode = 'teams';
+      tabTeams.classList.add("active");
+      tabSingles.classList.remove("active");
+      generateBtn.innerHTML = "Split 🪓";
+      readyTitle.innerText = "Ready ah Maamey!?";
+    });
+
+    tabSingles.addEventListener("click", () => {
+      appMatchMode = 'singles';
+      tabSingles.classList.add("active");
+      tabTeams.classList.remove("active");
+      generateBtn.innerHTML = "Generate Order 🎲";
+      readyTitle.innerText = "Ready to randomize order?";
+    });
 
     function getCryptoRandom() {
       const buffer = new Uint32Array(1); window.crypto.getRandomValues(buffer); return buffer[0] / 4294967296; 
@@ -481,10 +549,8 @@
 
     function escapeHtml(val) { return String(val || "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;"); }
 
-    // --- MAIN SELECTION (WITH LONG PRESS LOGIC) ---
     function renderChecklistPool() {
       checklistContainer.innerHTML = ""; totalPlayers.textContent = activePlayers.length;
-
       masterPool.forEach(player => {
         const isChecked = activePlayers.some(p => p.id === player.id);
         const isCreator = player.name === "DIWA OG";
@@ -493,7 +559,6 @@
 
         const itemCard = document.createElement("div");
         itemCard.className = `checklist-item ${isCreator ? 'creator-glow-row' : ''} ${isChecked ? 'selected-card' : ''}`;
-        
         itemCard.innerHTML = `
           <input type="checkbox" id="chk-${player.id}" value="${player.id}" ${isChecked ? 'checked' : ''}>
           <label for="chk-${player.id}">
@@ -509,8 +574,7 @@
 
         let pressTimer; let isLongPress = false;
         const startPress = (e) => {
-          isLongPress = false;
-          pressTimer = setTimeout(() => {
+          isLongPress = false; pressTimer = setTimeout(() => {
             isLongPress = true; openSingleProfile(player);
             if (navigator.vibrate) navigator.vibrate(40);
           }, 450); 
@@ -602,10 +666,19 @@
       return target;
     }
 
-    function splitTeams() {
+    /* MAIN GENERATION ROUTER */
+    function handleGeneration() {
       if (activePlayers.length < 2) { alert("Please pick at least 2 players!"); return; }
-      const result = [[], []]; let leftovers = []; const groups = {};
+      
+      if (appMatchMode === 'teams') {
+        splitTeams();
+      } else {
+        generateSingles();
+      }
+    }
 
+    function splitTeams() {
+      const result = [[], []]; let leftovers = []; const groups = {};
       activePlayers.forEach(player => {
         const factor = player.separation || "None";
         if (!groups[factor]) groups[factor] = [];
@@ -634,18 +707,41 @@
       const teamAData = alignCreatorFirst(result[0]);
       const teamBData = alignCreatorFirst(result[1]);
 
+      setupStep3View('teams');
       renderTeam(teamA, teamAData, capA);
       renderTeam(teamB, teamBData, capB);
 
-      // Store in memory for the Save button
-      currentGeneratedMatch = { teamA: teamAData, teamB: teamBData, capA: capA, capB: capB };
-      
+      currentGeneratedMatch = { mode: 'teams', teamA: teamAData, teamB: teamBData, capA: capA, capB: capB };
       goToStep(3);
+    }
+
+    function generateSingles() {
+      const shuffledList = secureShuffle([...activePlayers]);
+      
+      setupStep3View('singles');
+      renderTeam(teamA, shuffledList, null); // Render in Team A block
+      
+      currentGeneratedMatch = { mode: 'singles', teamA: shuffledList };
+      goToStep(3);
+    }
+
+    function setupStep3View(mode) {
+      const teamAWrapper = document.getElementById("teamAWrapper");
+      const teamBWrapper = document.getElementById("teamBWrapper");
+      const teamATitle = document.getElementById("teamATitle");
+      
+      if (mode === 'teams') {
+        teamBWrapper.style.display = "block";
+        teamATitle.innerText = "Team A";
+      } else {
+        teamBWrapper.style.display = "none";
+        teamATitle.innerText = "Playing Order";
+      }
     }
 
     function renderTeam(container, teamPlayers, captainId) {
       container.innerHTML = "";
-      teamPlayers.forEach((player) => {
+      teamPlayers.forEach((player, index) => {
         const isCaptain = player.id === captainId;
         const isCreator = player.name === "DIWA OG";
         const initial = player.name ? player.name.charAt(0) : "?";
@@ -657,6 +753,7 @@
         
         row.innerHTML = `
           <div class="team-player-left" style="width:100%;">
+            <div class="player-order-number">${index + 1}</div>
             <div class="player-avatar" style="width:48px; height:48px; font-size:1.4rem; margin:0; border: none; background: rgba(255,255,255,0.1); flex-shrink: 0;">
               <span class="avatar-initial">${initial}</span>
               <img src="${imgName}" onerror="this.style.display='none'" class="avatar-image" alt="${initial}">
@@ -698,31 +795,75 @@
       accordionToggle.classList.remove("active"); accordionContent.classList.remove("open");
     });
 
-    /* SAVE & RESUME TEAMS LOGIC */
+    /* --- SAVE & RESUME MULTIPLE MATCHES LOGIC --- */
+    function checkSavedMatches() {
+      const savedList = JSON.parse(localStorage.getItem(storageKeySavedMatchesList) || "[]");
+      if(savedList.length > 0) {
+        loadSavedMatchBtn.style.display = "block";
+      } else {
+        loadSavedMatchBtn.style.display = "none";
+      }
+    }
+
     saveTeamsBtn.addEventListener("click", () => {
       if(currentGeneratedMatch) {
-        localStorage.setItem(storageKeySavedMatch, JSON.stringify(currentGeneratedMatch));
-        alert("Teams have been saved securely! You can resume them directly from the main screen.");
-        loadSavedMatchBtn.style.display = "block";
+        const defaultName = appMatchMode === 'teams' ? "Match " + new Date().toLocaleDateString() : "Singles " + new Date().toLocaleDateString();
+        const title = prompt("Enter a title to save this match:", defaultName);
+        if(title) {
+          let savedList = JSON.parse(localStorage.getItem(storageKeySavedMatchesList) || "[]");
+          savedList.unshift({ id: Date.now(), title: title, data: currentGeneratedMatch });
+          localStorage.setItem(storageKeySavedMatchesList, JSON.stringify(savedList));
+          checkSavedMatches();
+          alert("Match saved securely! You can load it anytime from the main screen.");
+        }
       }
     });
 
     loadSavedMatchBtn.addEventListener("click", () => {
-      const savedData = localStorage.getItem(storageKeySavedMatch);
-      if(savedData) {
-        const match = JSON.parse(savedData);
-        currentGeneratedMatch = match;
-        renderTeam(teamA, match.teamA, match.capA);
-        renderTeam(teamB, match.teamB, match.capB);
-        goToStep(3);
-      }
+      const savedList = JSON.parse(localStorage.getItem(storageKeySavedMatchesList) || "[]");
+      savedMatchesList.innerHTML = "";
+      
+      savedList.forEach((savedItem) => {
+        const dateStr = new Date(savedItem.id).toLocaleString();
+        const modeText = savedItem.data.mode === 'singles' ? "Singles" : "Teams";
+        
+        const card = document.createElement("div");
+        card.className = "saved-match-item";
+        card.innerHTML = `
+          <div class="saved-match-title">${escapeHtml(savedItem.title)}</div>
+          <div class="saved-match-meta">
+            <span>${dateStr}</span>
+            <span class="match-type-badge">${modeText}</span>
+          </div>
+        `;
+        
+        card.addEventListener("click", () => {
+          savedMatchesModal.classList.remove("active");
+          const match = savedItem.data;
+          currentGeneratedMatch = match;
+          appMatchMode = match.mode || 'teams';
+          
+          setupStep3View(appMatchMode);
+          renderTeam(teamA, match.teamA, match.capA);
+          if (appMatchMode === 'teams') {
+            renderTeam(teamB, match.teamB, match.capB);
+          }
+          goToStep(3);
+        });
+        
+        savedMatchesList.appendChild(card);
+      });
+      
+      savedMatchesModal.classList.add("active");
     });
 
-    // Check if match exists on startup to show resume button
-    if(localStorage.getItem(storageKeySavedMatch)) {
-      loadSavedMatchBtn.style.display = "block";
-    }
+    closeSavedMatchesBtn.addEventListener("click", () => savedMatchesModal.classList.remove("active"));
+    savedMatchesModal.addEventListener("click", (e) => { if (e.target === savedMatchesModal) savedMatchesModal.classList.remove("active"); });
 
+    // Initialize display state
+    checkSavedMatches();
+
+    /* --- MISC UI EVENTS --- */
     coinFlipToggleBtn.addEventListener("click", () => coinFlipModal.classList.add("active"));
     closeModalBtn.addEventListener("click", () => coinFlipModal.classList.remove("active"));
     coinFlipModal.addEventListener("click", (e) => { if (e.target === coinFlipModal) coinFlipModal.classList.remove("active"); });
@@ -739,8 +880,8 @@
     closeProfilesBtn.addEventListener("click", () => profilesModal.classList.remove("active"));
     profilesModal.addEventListener("click", (e) => { if (e.target === profilesModal) profilesModal.classList.remove("active"); });
 
-    generateBtn.addEventListener("click", splitTeams);
-    bottomReshuffleBtn.addEventListener("click", splitTeams);
+    generateBtn.addEventListener("click", handleGeneration);
+    bottomReshuffleBtn.addEventListener("click", handleGeneration);
     clearStorageBtn.addEventListener("click", () => { if (confirm("Clear room records and reset squad lists?")) { localStorage.clear(); location.reload(); } });
 
     renderChecklistPool();
