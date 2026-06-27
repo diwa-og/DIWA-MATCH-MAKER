@@ -32,25 +32,28 @@
       --radius-app: 36px;
       --radius-pill: 50px;
 
-      /* Animation */
+      /* Animation (Updated to transitions for smoothness) */
       --anim-smooth: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Poppins', sans-serif; }
     html { scroll-behavior: smooth; height: 100%; }
 
-    /* LAG-FREE PURE CSS MESH GRADIENT BACKGROUND */
+    /* LAG-FREE PURE CSS MESH GRADIENT BACKGROUND (Moved fixed gradient to pseudo-element to stop lag) */
     body {
-      min-height: 100%; margin: 0; color: var(--text-main);
+      min-height: 100vh; margin: 0; color: var(--text-main);
       background-color: #E0E7FF;
+      position: relative; overflow-x: hidden;
+      display: flex; justify-content: center; align-items: center; 
+    }
+    
+    body::before {
+      content: ""; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: -1;
       background-image: 
         radial-gradient(at 0% 0%, #FBCFE8 0px, transparent 60%),
         radial-gradient(at 100% 0%, #BAE6FD 0px, transparent 60%),
         radial-gradient(at 100% 100%, #DDD6FE 0px, transparent 60%),
         radial-gradient(at 0% 100%, #A5B4FC 0px, transparent 60%);
-      background-attachment: fixed;
-      position: relative; overflow-x: hidden;
-      display: flex; justify-content: center; align-items: center; 
     }
 
     /* THE MAIN APP WINDOW */
@@ -79,9 +82,9 @@
     .step-dot.active { background: var(--grad-primary); border-color: transparent; color: #ffffff; box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3); transform: scale(1.1); }
     .step-dot.completed { background: var(--grad-info); border-color: transparent; color: #ffffff; }
 
-    .step-container { display: none; opacity: 0; transform: translateY(15px); transition: var(--anim-smooth); }
-    .step-container.active { display: block; opacity: 1; transform: translateY(0); animation: slideUp 0.3s ease-out forwards; }
-    @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    /* REPLACED KEYFRAME ANIMATIONS WITH SMOOTH TRANSITIONS */
+    .step-container { display: none; opacity: 0; transform: translateY(15px); transition: opacity 0.3s ease-out, transform 0.3s ease-out; }
+    .step-container.active { display: block; opacity: 1; transform: translateY(0); }
 
     /* --- INNER SOLID PANELS --- */
     .glass-panel {
@@ -186,11 +189,16 @@
     .team-heading h3::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--grad-primary); display: inline-block; }
     
     .team-list { display: grid; gap: 12px; margin-top: 16px; }
-    .team-player { background: #F8FAFC; border: 1px solid #F1F5F9; border-radius: var(--radius-md); padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; transition: var(--anim-smooth); }
+    
+    /* PREVENT TEXT OVERLAP ON MOBILE */
+    .team-player { background: #F8FAFC; border: 1px solid #F1F5F9; border-radius: var(--radius-md); padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; transition: var(--anim-smooth); overflow: hidden; gap: 8px; }
     .team-player:hover { transform: translateX(4px); background: #FFFFFF; border-color: #E2E8F0; box-shadow: 0 4px 12px rgba(30,41,59,0.04); }
     
-    .team-player-left { display: flex; align-items: center; gap: 16px; }
-    .team-player-right { display: flex; align-items: center; justify-content: flex-end; }
+    .team-player-left { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
+    .team-player-left > div:last-child { display: flex; flex-direction: column; flex: 1; min-width: 0; justify-content: center; }
+    .team-player-left span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; width: 100%; }
+    
+    .team-player-right { display: flex; align-items: center; justify-content: flex-end; flex-shrink: 0; }
     
     .player-order-number { font-size: 18px; font-weight: 800; color: #CBD5E1; width: 28px; text-align: center; flex-shrink: 0; }
     
@@ -212,14 +220,15 @@
     .badge-gender { background: #F1F5F9; color: #64748B; }
 
     /* --- CUSTOM POPUPS / MODALS --- */
+    /* FIXED OVERLAY CENTERING FOR MOBILE VIEWPORT */
     .modal-overlay {
-      position: fixed; inset: 0; z-index: 1000; background: rgba(15, 23, 42, 0.3); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; z-index: 1000; background: rgba(15, 23, 42, 0.3); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
       display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: var(--anim-smooth); padding: 16px;
     }
     .modal-overlay.active { opacity: 1; pointer-events: auto; }
     .modal-window {
       background: #FFFFFF; border: 1px solid #F1F5F9; border-radius: var(--radius-app); width: 100%; max-width: 440px; padding: 32px; box-shadow: 0 25px 50px rgba(15, 23, 42, 0.15);
-      transform: translateY(20px) scale(0.95); transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); max-height: 85vh; display: flex; flex-direction: column;
+      transform: translateY(20px) scale(0.95); transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); max-height: 85vh; display: flex; flex-direction: column; position: relative;
     }
     .modal-overlay.active .modal-window { transform: translateY(0) scale(1); }
     
@@ -343,6 +352,17 @@
       <div class="custom-alert-message" id="alertMessage">Action completed successfully.</div>
       <div class="custom-alert-actions">
         <button class="custom-alert-btn btn-save" id="alertOkBtn">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="matchActionModal" style="z-index: 2000;">
+    <div class="custom-alert-box">
+      <div class="custom-alert-title">Match Options</div>
+      <div class="custom-alert-actions" style="flex-direction: column; gap: 12px; margin-top: 20px;">
+        <button class="custom-alert-btn btn-save" id="actionRenameBtn" style="width: 100%;">Rename Match</button>
+        <button class="custom-alert-btn btn-danger-action" id="actionDeleteBtn" style="width: 100%;">Delete Match</button>
+        <button class="custom-alert-btn btn-cancel" id="actionCancelBtn" style="width: 100%; background: #F1F5F9; color: var(--text-muted);">Cancel</button>
       </div>
     </div>
   </div>
@@ -864,18 +884,18 @@
         const captainLabel = isCaptain ? `<div class="captain-badge">👑 Captain</div>` : '';
         
         row.innerHTML = `
-          <div class="team-player-left">
+          <div class="team-player-left" style="flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px;">
             <div class="player-order-number">${index + 1}</div>
             <div class="player-avatar" style="width:56px; height:56px; font-size:20px; margin:0; flex-shrink:0;">
               <span class="avatar-initial">${initial}</span>
               <img src="${imgName}" onerror="this.style.display='none'" class="avatar-image" alt="${initial}">
             </div>
-            <div style="display:flex; flex-direction:column; justify-content:center;">
-              <span class="${isCreator ? 'creator-text-gradient' : ''}" style="font-weight:600; font-size:15px; color: var(--text-main);">${escapeHtml(player.name)}</span>
+            <div style="display:flex; flex-direction:column; justify-content:center; flex: 1; min-width: 0;">
+              <span class="${isCreator ? 'creator-text-gradient' : ''}" style="font-weight:600; font-size:15px; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; width: 100%;">${escapeHtml(player.name)}</span>
               ${captainLabel}
             </div>
           </div>
-          <div class="team-player-right">
+          <div class="team-player-right" style="flex-shrink: 0; margin-left: 10px;">
             <span class="badge ${roleClass}">${roleStr}</span>
           </div>
         `;
@@ -938,7 +958,7 @@
         
         const card = document.createElement("div"); card.className = "saved-match-item";
         card.innerHTML = `
-          <div class="saved-match-title">${escapeHtml(savedItem.title)}</div>
+          <div class="saved-match-title" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(savedItem.title)}</div>
           <div class="saved-match-meta"><span>${dateStr}</span><span class="match-type-badge">${modeText}</span></div>
         `;
         
@@ -947,15 +967,38 @@
           isLongPress = false; pressTimer = setTimeout(() => {
             isLongPress = true; if (navigator.vibrate) navigator.vibrate(40);
             
-            customConfirm("Delete Match?", `Are you sure you want to permanently delete "${savedItem.title}"?`, (confirmed) => {
-              if (confirmed) {
-                const updatedList = savedList.filter(item => item.id !== savedItem.id);
-                localStorage.setItem(storageKeySavedMatchesList, JSON.stringify(updatedList));
-                checkSavedMatches(); renderSavedMatches(); 
-                if (updatedList.length === 0) { savedMatchesModal.classList.remove("active"); }
-              }
-            });
-            
+            // LONG PRESS NOW OPENS OPTIONS RENAME / DELETE
+            const actionModal = document.getElementById('matchActionModal');
+            actionModal.classList.add('active');
+
+            // Setup action buttons dynamically
+            document.getElementById('actionRenameBtn').onclick = () => {
+              actionModal.classList.remove('active');
+              customPrompt("Rename Match", savedItem.title, (newName) => {
+                if (newName && newName.trim() !== "") {
+                  const updatedList = savedList.map(item => item.id === savedItem.id ? { ...item, title: newName.trim() } : item);
+                  localStorage.setItem(storageKeySavedMatchesList, JSON.stringify(updatedList));
+                  renderSavedMatches();
+                }
+              });
+            };
+
+            document.getElementById('actionDeleteBtn').onclick = () => {
+              actionModal.classList.remove('active');
+              customConfirm("Delete Match?", `Are you sure you want to permanently delete "${savedItem.title}"?`, (confirmed) => {
+                if (confirmed) {
+                  const updatedList = savedList.filter(item => item.id !== savedItem.id);
+                  localStorage.setItem(storageKeySavedMatchesList, JSON.stringify(updatedList));
+                  checkSavedMatches(); renderSavedMatches(); 
+                  if (updatedList.length === 0) { savedMatchesModal.classList.remove("active"); }
+                }
+              });
+            };
+
+            document.getElementById('actionCancelBtn').onclick = () => {
+              actionModal.classList.remove('active');
+            };
+
           }, 500); 
         };
         const cancelPress = (e) => { clearTimeout(pressTimer); if (isLongPress && e.type === 'touchend') e.preventDefault(); };
@@ -967,6 +1010,7 @@
 
         card.addEventListener("click", (e) => {
           if (isLongPress) { e.preventDefault(); return; }
+          // SINGLE TAP LOADS THE MATCH
           savedMatchesModal.classList.remove("active");
           const match = savedItem.data; currentGeneratedMatch = match; appMatchMode = match.mode || 'teams';
           setupStep3View(appMatchMode); renderTeam(teamA, match.teamA, match.capA);

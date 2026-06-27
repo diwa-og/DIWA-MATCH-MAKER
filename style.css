@@ -28,21 +28,27 @@ body {
   margin: 0;
   color: var(--text);
   font-family: Arial, Helvetica, sans-serif;
-  
-  /* HIGH-END PROFESSIONAL ATMOSPHERIC BACKGROUND LAYER */
   background-color: #020617;
-  background-image: 
-    linear-gradient(135deg, rgba(5, 7, 15, 0.85) 0%, rgba(16, 23, 42, 0.95) 100%),
-    url('https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=2940&auto=format&fit=crop');
-  background-attachment: fixed;
-  background-size: cover;
-  background-position: center;
 }
 
+/* MOVED BACKGROUNDS TO FIXED PSEUDO ELEMENTS TO FIX SCROLL LAG */
 body::before {
   content: "";
   position: fixed;
   inset: 0;
+  z-index: -2;
+  background-image: 
+    linear-gradient(135deg, rgba(5, 7, 15, 0.85) 0%, rgba(16, 23, 42, 0.95) 100%),
+    url('https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=2940&auto=format&fit=crop');
+  background-size: cover;
+  background-position: center;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
   pointer-events: none;
   background:
     linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
@@ -414,7 +420,7 @@ select:focus {
   margin-top: -4px;
 }
 
-/* --- OUTPUT DISPLAY TEAMS --- */
+/* --- OUTPUT DISPLAY TEAMS (FIXED MOBILE OVERLAPS) --- */
 .teams-section {
   margin-top: 30px;
 }
@@ -445,17 +451,41 @@ select:focus {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  overflow: hidden; /* Added layout stability */
 }
 
+/* OVERLAP FIXES */
 .team-player-left {
   display: flex;
   align-items: center;
   gap: 14px;
+  flex: 1;
+  min-width: 0;
+}
+
+.team-player-left > div:last-child {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  justify-content: center;
 }
 
 .team-player-left span {
   font-weight: 900;
   font-size: 1.05rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+  width: 100%;
+}
+
+.team-player-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-shrink: 0;
 }
 
 .captain-highlight {

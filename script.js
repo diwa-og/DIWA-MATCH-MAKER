@@ -143,9 +143,8 @@ window.addEventListener("DOMContentLoaded", loadMasterPoolFromAPI);
 
 
 // --- 5. RENDER OVERLAP & RENAME LOGIC UPDATES ---
-// Ensure this specific updated block is included in your file. 
 
-// The renderTeam string prevents overlapping by using flexbox strict rules (min-width: 0 and text-overflow: ellipsis)
+// The renderTeam string strictly prevents overlapping by using full flexbox constraints
 function renderTeam(container, teamPlayers, captainId) {
   container.innerHTML = "";
   teamPlayers.forEach((player, index) => {
@@ -162,14 +161,14 @@ function renderTeam(container, teamPlayers, captainId) {
     const captainLabel = isCaptain ? `<div class="captain-badge">👑 Captain</div>` : '';
     
     row.innerHTML = `
-      <div class="team-player-left" style="flex: 1; min-width: 0;">
+      <div class="team-player-left" style="flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px;">
         <div class="player-order-number">${index + 1}</div>
         <div class="player-avatar" style="width:56px; height:56px; font-size:20px; margin:0; flex-shrink:0;">
           <span class="avatar-initial">${initial}</span>
           <img src="${imgName}" onerror="this.style.display='none'" class="avatar-image" alt="${initial}">
         </div>
-        <div style="display:flex; flex-direction:column; justify-content:center; min-width: 0;">
-          <span class="${isCreator ? 'creator-text-gradient' : ''}" style="font-weight:600; font-size:15px; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;">${escapeHtml(player.name)}</span>
+        <div style="display:flex; flex-direction:column; justify-content:center; flex: 1; min-width: 0;">
+          <span class="${isCreator ? 'creator-text-gradient' : ''}" style="font-weight:600; font-size:15px; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; width: 100%;">${escapeHtml(player.name)}</span>
           ${captainLabel}
         </div>
       </div>
@@ -181,7 +180,7 @@ function renderTeam(container, teamPlayers, captainId) {
   });
 }
 
-// Replaced tricky long-press actions with smooth action buttons containing "Rename"
+// RESTORED LONG PRESS ACTIONS with Load, Rename, and Delete modals
 function renderSavedMatches() {
   const savedList = JSON.parse(localStorage.getItem(storageKeySavedMatchesList) || "[]");
   const savedMatchesList = document.getElementById("savedMatchesList");
@@ -195,24 +194,59 @@ function renderSavedMatches() {
     const card = document.createElement("div"); 
     card.className = "saved-match-item";
     
-    // Explicit Load, Rename, and Delete Buttons inserted natively into the card
     card.innerHTML = `
-      <div style="display: flex; flex-direction: column; gap: 4px;">
-        <div class="saved-match-title" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(savedItem.title)}</div>
-        <div class="saved-match-meta"><span>${dateStr}</span><span class="match-type-badge">${modeText}</span></div>
-      </div>
-      <div style="display: flex; gap: 8px; margin-top: 10px;">
-        <button class="btn-load-match" style="flex: 2; padding: 10px; font-size: 13px; border-radius: 8px; background: var(--grad-primary); color: white; border: none; font-weight: bold;">Load</button>
-        <button class="btn-rename-match" style="flex: 1; padding: 10px; font-size: 13px; border-radius: 8px; background: #F1F5F9; color: #1E293B; border: none; font-weight: bold;">Rename</button>
-        <button class="btn-delete-match" style="flex: 1; padding: 10px; font-size: 13px; border-radius: 8px; background: #FEF2F2; color: #DC2626; border: none; font-weight: bold;">Delete</button>
-      </div>
+      <div class="saved-match-title" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(savedItem.title)}</div>
+      <div class="saved-match-meta"><span>${dateStr}</span><span class="match-type-badge">${modeText}</span></div>
     `;
     
-    const loadBtn = card.querySelector('.btn-load-match');
-    const renameBtn = card.querySelector('.btn-rename-match');
-    const deleteBtn = card.querySelector('.btn-delete-match');
+    let pressTimer; let isLongPress = false;
+    const startPress = (e) => {
+      isLongPress = false; pressTimer = setTimeout(() => {
+        isLongPress = true; if (navigator.vibrate) navigator.vibrate(40);
+        
+        const actionModal = document.getElementById('matchActionModal');
+        actionModal.classList.add('active');
 
-    loadBtn.addEventListener('click', () => {
+        // Setup action buttons
+        document.getElementById('actionRenameBtn').onclick = () => {
+          actionModal.classList.remove('active');
+          customPrompt("Rename Match", savedItem.title, (newName) => {
+            if (newName && newName.trim() !== "") {
+              const updatedList = savedList.map(item => item.id === savedItem.id ? { ...item, title: newName.trim() } : item);
+              localStorage.setItem(storageKeySavedMatchesList, JSON.stringify(updatedList));
+              renderSavedMatches();
+            }
+          });
+        };
+
+        document.getElementById('actionDeleteBtn').onclick = () => {
+          actionModal.classList.remove('active');
+          customConfirm("Delete Match?", `Are you sure you want to permanently delete "${savedItem.title}"?`, (confirmed) => {
+            if (confirmed) {
+              const updatedList = savedList.filter(item => item.id !== savedItem.id);
+              localStorage.setItem(storageKeySavedMatchesList, JSON.stringify(updatedList));
+              checkSavedMatches(); renderSavedMatches(); 
+              if (updatedList.length === 0) savedMatchesModal.classList.remove("active");
+            }
+          });
+        };
+
+        document.getElementById('actionCancelBtn').onclick = () => {
+          actionModal.classList.remove('active');
+        };
+
+      }, 500); 
+    };
+    
+    const cancelPress = (e) => { clearTimeout(pressTimer); if (isLongPress && e.type === 'touchend') e.preventDefault(); };
+
+    card.addEventListener('touchstart', startPress, {passive: true}); card.addEventListener('touchend', cancelPress);
+    card.addEventListener('touchmove', cancelPress); card.addEventListener('mousedown', startPress);
+    card.addEventListener('mouseup', cancelPress); card.addEventListener('mouseleave', cancelPress);
+    card.addEventListener('contextmenu', (e) => e.preventDefault());
+
+    card.addEventListener('click', (e) => {
+      if (isLongPress) { e.preventDefault(); return; }
       savedMatchesModal.classList.remove("active");
       const match = savedItem.data; 
       currentGeneratedMatch = match; 
@@ -221,28 +255,6 @@ function renderSavedMatches() {
       renderTeam(teamA, match.teamA, match.capA);
       if (appMatchMode === 'teams') renderTeam(teamB, match.teamB, match.capB);
       goToStep(3);
-    });
-
-    renameBtn.addEventListener('click', () => {
-      customPrompt("Rename Match", savedItem.title, (newName) => {
-        if (newName && newName.trim() !== "") {
-          const updatedList = savedList.map(item => item.id === savedItem.id ? { ...item, title: newName.trim() } : item);
-          localStorage.setItem(storageKeySavedMatchesList, JSON.stringify(updatedList));
-          renderSavedMatches();
-        }
-      });
-    });
-
-    deleteBtn.addEventListener('click', () => {
-      customConfirm("Delete Match?", `Are you sure you want to permanently delete "${savedItem.title}"?`, (confirmed) => {
-        if (confirmed) {
-          const updatedList = savedList.filter(item => item.id !== savedItem.id);
-          localStorage.setItem(storageKeySavedMatchesList, JSON.stringify(updatedList));
-          checkSavedMatches(); 
-          renderSavedMatches(); 
-          if (updatedList.length === 0) savedMatchesModal.classList.remove("active");
-        }
-      });
     });
     
     savedMatchesList.appendChild(card);
