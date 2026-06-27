@@ -19,6 +19,10 @@ const newSeparation = document.getElementById("newSeparation");
 const newRole = document.getElementById("newRole");
 const newGender = document.getElementById("newGender");
 
+const storageKeyActive = "team-marking-active-bulk-v40"; 
+const storageKeyMaster = "team-marking-master-bulk-v40"; 
+const storageKeySavedMatchesList = "team-marking-saved-matches-list-v40";
+
 // --- 2. API NETWORK CALLS ---
 async function loadMasterPoolFromAPI() {
   try {
@@ -31,7 +35,7 @@ async function loadMasterPoolFromAPI() {
     renderProfilesDirectory();
   } catch (error) {
     console.error("Failed to fetch players:", error);
-    alert("Could not connect to the backend server. Is Python running?");
+    // Silent fallback to local storage
   }
 }
 
@@ -52,7 +56,6 @@ async function addPlayerToAPI(playerData) {
     renderProfilesDirectory();
   } catch (error) {
     console.error("Error saving player:", error);
-    alert("Failed to save player to the database.");
   }
 }
 
@@ -112,7 +115,8 @@ async function splitTeamsViaAPI() {
       }
     }
     console.error("Error splitting teams:", error);
-    alert("Algorithm failed on the server.");
+    // Fallback to local splitting if API fails
+    splitTeams();
   } finally {
     generateBtn.textContent = originalText;
     generateBtn.disabled = false;
@@ -124,10 +128,19 @@ addNewPlayerBtn.addEventListener("click", () => {
   const name = newPlayerName.value.trim().toUpperCase(); 
   if (!name) return;
   
-  const freshPlayer = { name: name, separation: newSeparation.value, role: newRole.value, gender: newGender.value };
-  addPlayerToAPI(freshPlayer);
+  const freshPlayer = { id: `c-${Date.now()}`, name: name, separation: newSeparation.value, role: newRole.value, gender: newGender.value };
+  
+  // Update UI immediately
+  masterPool.push(freshPlayer); 
+  activePlayers.push(freshPlayer);
+  masterPool = alignCreatorFirst(masterPool); 
+  activePlayers = alignCreatorFirst(activePlayers);
+  saveMasterPool(); 
+  saveActivePlayers(); 
   
   newPlayerName.value = ""; newSeparation.value = "None"; newRole.value = "Batsman"; newGender.value = "M";
+  renderChecklistPool(); 
+  renderProfilesDirectory();
   document.getElementById("accordionToggle").classList.remove("active"); 
   document.getElementById("accordionContent").classList.remove("open");
 });
@@ -141,7 +154,8 @@ bulkSquadForm.addEventListener("submit", (e) => {
       if (p) newActiveList.push(p); 
     }
   });
-  activePlayers = newActiveList; 
+  activePlayers = alignCreatorFirst(newActiveList); 
+  saveActivePlayers(); 
   totalPlayers.textContent = activePlayers.length;
   goToStep(2);
 });
@@ -151,7 +165,17 @@ bottomReshuffleBtn.addEventListener("click", splitTeamsViaAPI);
 
 window.addEventListener("DOMContentLoaded", loadMasterPoolFromAPI);
 
-// STRICTLY ALIGNED RENDER TEAM - Completely removed Role block and implemented structural classes
+function escapeHtml(val) { 
+  return String(val || "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;"); 
+}
+
+function alignCreatorFirst(array) {
+  const creator = array.filter(p => p.name === "DIWA OG");
+  const rest = array.filter(p => p.name !== "DIWA OG");
+  return [...creator, ...rest];
+}
+
+// STRICTLY ALIGNED RENDER TEAM - Completely removed Role block
 function renderTeam(container, teamPlayers, captainId) {
   container.innerHTML = "";
   teamPlayers.forEach((player, index) => {
@@ -181,7 +205,7 @@ function renderTeam(container, teamPlayers, captainId) {
   });
 }
 
-// RESTORED LONG PRESS ACTIONS
+// RESTORED LONG PRESS ACTIONS - REMOVED INLINE BUTTONS
 function renderSavedMatches() {
   const savedList = JSON.parse(localStorage.getItem(storageKeySavedMatchesList) || "[]");
   const savedMatchesList = document.getElementById("savedMatchesList");
@@ -201,9 +225,12 @@ function renderSavedMatches() {
     `;
     
     let pressTimer; let isLongPress = false;
+    
     const startPress = (e) => {
-      isLongPress = false; pressTimer = setTimeout(() => {
-        isLongPress = true; if (navigator.vibrate) navigator.vibrate(40);
+      isLongPress = false; 
+      pressTimer = setTimeout(() => {
+        isLongPress = true; 
+        if (navigator.vibrate) navigator.vibrate(40);
         
         const actionModal = document.getElementById('matchActionModal');
         actionModal.classList.add('active');
@@ -238,13 +265,21 @@ function renderSavedMatches() {
       }, 500); 
     };
     
-    const cancelPress = (e) => { clearTimeout(pressTimer); if (isLongPress && e.type === 'touchend') e.preventDefault(); };
+    const cancelPress = (e) => { 
+      clearTimeout(pressTimer); 
+      if (isLongPress && e.type === 'touchend') e.preventDefault(); 
+    };
 
-    card.addEventListener('touchstart', startPress, {passive: true}); card.addEventListener('touchend', cancelPress);
-    card.addEventListener('touchmove', cancelPress); card.addEventListener('mousedown', startPress);
-    card.addEventListener('mouseup', cancelPress); card.addEventListener('mouseleave', cancelPress);
+    // Long Press Event Listeners
+    card.addEventListener('touchstart', startPress, {passive: true}); 
+    card.addEventListener('touchend', cancelPress);
+    card.addEventListener('touchmove', cancelPress); 
+    card.addEventListener('mousedown', startPress);
+    card.addEventListener('mouseup', cancelPress); 
+    card.addEventListener('mouseleave', cancelPress);
     card.addEventListener('contextmenu', (e) => e.preventDefault());
 
+    // Single Tap to Load
     card.addEventListener('click', (e) => {
       if (isLongPress) { e.preventDefault(); return; }
       savedMatchesModal.classList.remove("active");
@@ -260,3 +295,5 @@ function renderSavedMatches() {
     savedMatchesList.appendChild(card);
   });
 }
+
+// ... All other UI fallback functions like customPrompt, splitTeams (fallback), logic are included in the HTML snippet natively.

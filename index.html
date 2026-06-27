@@ -24,13 +24,13 @@
       --radius-lg: 28px;
       --radius-app: 36px;
       --radius-pill: 50px;
-      --anim-smooth: all 0.2s ease-out;
+      --anim-smooth: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Poppins', sans-serif; }
     html { scroll-behavior: smooth; height: 100%; }
 
-    /* Performant Background */
+    /* LAG-FREE BACKGROUND: Using fixed pseudo-element instead of background-attachment: fixed */
     body {
       min-height: 100vh; margin: 0; color: var(--text-main);
       background-color: #E0E7FF;
@@ -54,9 +54,7 @@
       margin: 40px auto; 
       padding: 40px 24px 60px; 
       z-index: 1; 
-      background: rgba(255, 255, 255, 0.75);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
+      background: rgba(255, 255, 255, 0.85);
       border: 1px solid rgba(255, 255, 255, 0.9);
       border-radius: var(--radius-app);
       box-shadow: 0 30px 60px rgba(30, 41, 59, 0.12), inset 0 0 0 1px rgba(255, 255, 255, 1);
@@ -73,8 +71,9 @@
     .step-dot.active { background: var(--grad-primary); border-color: transparent; color: #ffffff; box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3); transform: scale(1.1); }
     .step-dot.completed { background: var(--grad-info); border-color: transparent; color: #ffffff; }
 
-    .step-container { display: none; }
-    .step-container.active { display: block; }
+    /* LAG-FREE CONTAINER TRANSITIONS (NO KEYFRAMES) */
+    .step-container { display: none; opacity: 0; transform: translateY(15px); transition: opacity 0.25s ease-out, transform 0.25s ease-out; }
+    .step-container.active { display: block; opacity: 1; transform: translateY(0); }
 
     /* --- INNER SOLID PANELS --- */
     .glass-panel {
@@ -130,6 +129,7 @@
     .checklist-item input[type="checkbox"] { position: absolute; opacity: 0; width: 0; height: 0; }
     .checklist-item label { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; width: 100%; cursor: pointer; gap: 16px; pointer-events: none; }
 
+    /* Bigger Avatars */
     .player-avatar {
       width: 88px; height: 88px; border-radius: 50%; background: #FFFFFF; border: 2px solid #E2E8F0;
       display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 600; text-transform: uppercase; color: var(--text-muted); position: relative; overflow: hidden; transition: var(--anim-smooth);
@@ -137,6 +137,7 @@
     .avatar-image { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 50%; object-fit: cover; z-index: 1; }
     .player-name-text { font-size: 15px; font-weight: 700; color: var(--text-main); letter-spacing: 0.2px; }
 
+    /* Selected State */
     .checklist-item.selected-card { background: #EEF2FF; border-color: #C7D2FE; box-shadow: 0 10px 20px rgba(99, 102, 241, 0.1); transform: translateY(-3px); }
     .checklist-item.selected-card .player-avatar { border-color: #6366F1; color: #6366F1; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.15); }
     .checklist-item::after {
@@ -177,49 +178,24 @@
     .team-heading h3::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--grad-primary); display: inline-block; }
     
     .team-list { display: grid; gap: 12px; margin-top: 16px; }
-    
-    /* STRICT ALIGNMENT FOR TEAMS (STEP 3) */
-    .team-player { 
-      background: #F8FAFC; border: 1px solid #F1F5F9; border-radius: var(--radius-md); 
-      padding: 14px 18px; display: flex; align-items: center; justify-content: flex-start; 
-      transition: var(--anim-smooth); overflow: hidden; gap: 8px; 
-    }
+    .team-player { background: #F8FAFC; border: 1px solid #F1F5F9; border-radius: var(--radius-md); padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; transition: var(--anim-smooth); }
     .team-player:hover { transform: translateX(4px); background: #FFFFFF; border-color: #E2E8F0; box-shadow: 0 4px 12px rgba(30,41,59,0.04); }
     
-    .team-player-left { 
-      display: flex; align-items: center; gap: 16px; flex: 1; min-width: 0; 
-    }
+    .team-player-left { display: flex; align-items: center; gap: 16px; }
+    .team-player-right { display: flex; align-items: center; justify-content: flex-end; }
     
-    .player-order-number { 
-      font-size: 18px; font-weight: 800; color: #CBD5E1; width: 28px; text-align: center; flex-shrink: 0; 
-    }
+    .player-order-number { font-size: 18px; font-weight: 800; color: #CBD5E1; width: 28px; text-align: center; flex-shrink: 0; }
     
-    .team-avatar {
-      width: 52px !important; height: 52px !important; min-width: 52px !important; min-height: 52px !important;
-      font-size: 20px !important; margin: 0 !important; flex: 0 0 52px !important;
-    }
-
-    .team-player-info { 
-      display: flex; flex-direction: column; justify-content: center; flex: 1; min-width: 0; 
-    }
-    
-    .team-player-info .player-name-text { 
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; width: 100%; 
-      margin: 0; font-size: 15px; font-weight: 700; line-height: 1.3;
-    }
-    
+    /* Roles / Badges */
     .captain-row { background: #FFFBEB !important; border-color: #FDE68A !important; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.08); }
-    .captain-badge { 
-      display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 800; 
-      color: var(--warning); background: #FEF3C7; padding: 4px 10px; border-radius: var(--radius-pill); 
-      margin-top: 4px; text-transform: uppercase; letter-spacing: 1px; align-self: flex-start;
-    }
+    .captain-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 800; color: var(--warning); background: #FEF3C7; padding: 4px 10px; border-radius: var(--radius-pill); margin-top: 4px; text-transform: uppercase; letter-spacing: 1px; }
 
     .creator-glow-row { background: #FDF2F8 !important; border: 1px solid #FBCFE8 !important; }
     .creator-glow-row:hover { box-shadow: 0 4px 15px rgba(236, 72, 153, 0.1); }
     .creator-glow-row .player-avatar { border-color: #F472B6; background: #FFFFFF; }
     .creator-text-gradient { background: var(--grad-creator); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800 !important; }
 
+    /* Badges */
     .badge { font-size: 11px; font-weight: 700; padding: 6px 12px; border-radius: var(--radius-pill); text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; }
     .badge-batsman { background: #EFF6FF; color: #3B82F6; }
     .badge-bowler { background: #ECFDF5; color: #10B981; }
@@ -229,13 +205,13 @@
 
     /* --- CUSTOM POPUPS / MODALS --- */
     .modal-overlay {
-      position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; z-index: 1000; background: rgba(15, 23, 42, 0.3); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+      position: fixed; inset: 0; z-index: 1000; background: rgba(15, 23, 42, 0.3); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
       display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: var(--anim-smooth); padding: 16px;
     }
     .modal-overlay.active { opacity: 1; pointer-events: auto; }
     .modal-window {
       background: #FFFFFF; border: 1px solid #F1F5F9; border-radius: var(--radius-app); width: 100%; max-width: 440px; padding: 32px; box-shadow: 0 25px 50px rgba(15, 23, 42, 0.15);
-      transform: translateY(20px) scale(0.95); transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); max-height: 85vh; display: flex; flex-direction: column; position: relative;
+      transform: translateY(20px) scale(0.95); transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); max-height: 85vh; display: flex; flex-direction: column;
     }
     .modal-overlay.active .modal-window { transform: translateY(0) scale(1); }
     
@@ -245,6 +221,7 @@
     }
     .close-modal-btn:hover { background: #F1F5F9; color: var(--text-main); transform: rotate(90deg); }
 
+    /* Custom Confirm/Alert Dialog Styles */
     .custom-alert-box {
       background: #FFFFFF; border-radius: var(--radius-lg); width: 100%; max-width: 380px; padding: 28px 24px; box-shadow: 0 25px 50px rgba(15, 23, 42, 0.15);
       transform: translateY(20px) scale(0.95); transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); text-align: center;
@@ -263,11 +240,13 @@
     .btn-danger-action { background: var(--danger); color: #FFF; box-shadow: 0 6px 15px rgba(220, 38, 38, 0.2); }
     .btn-danger-action:hover { background: #B91C1C; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(220, 38, 38, 0.3); }
 
+    /* Profile Card Content */
     .profile-card-content { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 16px; padding: 10px 0; }
     .profile-card-content .player-avatar { width: 160px; height: 160px; font-size: 52px; border: 4px solid #FFFFFF; box-shadow: 0 15px 35px rgba(99, 102, 241, 0.15); background: #F8FAFC; color: var(--text-muted); }
     .profile-card-content h3 { margin: 0; font-size: 24px; font-weight: 800; color: var(--text-main); letter-spacing: -0.5px; }
     .role-badges { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 4px; }
 
+    /* Directories */
     .profiles-header { font-size: 20px; font-weight: 700; color: var(--text-main); margin: 0 0 24px; text-align: center; }
     .profiles-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; overflow-y: auto; padding-right: 8px; padding-bottom: 16px; max-height: 60vh; }
     .profiles-grid::-webkit-scrollbar { width: 6px; }
@@ -279,6 +258,7 @@
     .mini-profile-name { font-size: 14px; font-weight: 700; color: var(--text-main); width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .mini-badges { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; width: 100%; }
 
+    /* Saved Matches */
     .saved-matches-list { display: flex; flex-direction: column; gap: 16px; overflow-y: auto; max-height: 60vh; padding-right: 8px; }
     .saved-matches-list::-webkit-scrollbar { width: 6px; }
     .saved-matches-list::-webkit-scrollbar-thumb { background-color: #E2E8F0; border-radius: 10px; }
@@ -291,6 +271,7 @@
     .saved-match-meta { font-size: 11px; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center; font-weight: 500; }
     .match-type-badge { background: #EEF2FF; color: #4F46E5; padding: 4px 10px; border-radius: var(--radius-pill); font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; border: 1px solid #DBEAFE; }
 
+    /* --- DYNAMIC TOSS COIN DESIGN --- */
     .coin-wrapper { display: flex; flex-direction: column; align-items: center; gap: 32px; margin-top: 10px; }
     .coin-container { perspective: 1200px; width: 100px; height: 100px; }
     .coin { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transform: rotateY(0deg); transition: transform 0.8s ease-out; }
@@ -304,6 +285,7 @@
     .coin-back::before { content: "T"; font-size: 40px; font-weight: 800; color: #ffffff; text-shadow: 0 2px 8px rgba(0,0,0,0.2); }
     .toss-result-banner { font-weight: 700; font-size: 15px; text-align: center; min-height: 52px; display: flex; align-items: center; justify-content: center; background: #EEF2FF; border: 1px solid #C7D2FE; width: 100%; padding: 12px 20px; border-radius: var(--radius-md); color: #4F46E5; }
 
+    /* Bottom Actions Grid */
     .teams-actions-footer { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; width: 100%; margin-top: 32px; }
     .teams-actions-footer button { padding: 16px; border-radius: var(--radius-md); font-size: 14px; }
 
@@ -319,7 +301,7 @@
       .profile-card-content .player-avatar { width: 120px; height: 120px; font-size: 40px; }
       .teams-actions-footer { gap: 12px; }
       .teams-actions-footer button { padding: 14px 10px; font-size: 13px; }
-      .team-avatar { width: 44px !important; height: 44px !important; min-width: 44px !important; min-height: 44px !important; font-size: 16px !important; flex: 0 0 44px !important; }
+      .team-player-left .player-avatar { width: 48px !important; height: 48px !important; font-size: 16px !important; }
     }
   </style>
 </head>
@@ -867,7 +849,6 @@
       }
     }
 
-    /* REVISED RENDER TEAM - Completely removed Role block, fully structured for accurate alignment */
     function renderTeam(container, teamPlayers, captainId) {
       container.innerHTML = "";
       teamPlayers.forEach((player, index) => {
@@ -881,12 +862,12 @@
         row.innerHTML = `
           <div class="team-player-left">
             <div class="player-order-number">${index + 1}</div>
-            <div class="player-avatar team-avatar">
+            <div class="player-avatar" style="width:56px; height:56px; font-size:20px; margin:0; flex-shrink:0;">
               <span class="avatar-initial">${initial}</span>
               <img src="${imgName}" onerror="this.style.display='none'" class="avatar-image" alt="${initial}">
             </div>
-            <div class="team-player-info">
-              <span class="player-name-text ${isCreator ? 'creator-text-gradient' : ''}">${escapeHtml(player.name)}</span>
+            <div style="display:flex; flex-direction:column; justify-content:center;">
+              <span class="${isCreator ? 'creator-text-gradient' : ''}" style="font-weight:600; font-size:15px; color: var(--text-main);">${escapeHtml(player.name)}</span>
               ${captainLabel}
             </div>
           </div>
@@ -949,7 +930,7 @@
         
         const card = document.createElement("div"); card.className = "saved-match-item";
         card.innerHTML = `
-          <div class="saved-match-title" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(savedItem.title)}</div>
+          <div class="saved-match-title">${escapeHtml(savedItem.title)}</div>
           <div class="saved-match-meta"><span>${dateStr}</span><span class="match-type-badge">${modeText}</span></div>
         `;
         
@@ -987,7 +968,7 @@
             document.getElementById('actionCancelBtn').onclick = () => {
               actionModal.classList.remove('active');
             };
-
+            
           }, 500); 
         };
         const cancelPress = (e) => { clearTimeout(pressTimer); if (isLongPress && e.type === 'touchend') e.preventDefault(); };
@@ -1015,22 +996,17 @@
 
     checkSavedMatches();
 
+    /* --- MISC UI EVENTS --- */
     coinFlipToggleBtn.addEventListener("click", () => coinFlipModal.classList.add("active"));
     closeModalBtn.addEventListener("click", () => coinFlipModal.classList.remove("active"));
     coinFlipModal.addEventListener("click", (e) => { if (e.target === coinFlipModal) coinFlipModal.classList.remove("active"); });
 
     executeFlipBtn.addEventListener("click", () => {
       executeFlipBtn.disabled = true; tossResultText.textContent = "Flipping...";
-      
-      virtualCoin.style.transition = 'none'; virtualCoin.style.transform = 'rotateY(0deg)'; 
-      // Force repaint
-      void virtualCoin.offsetWidth; 
-      
+      virtualCoin.style.transition = 'none'; virtualCoin.style.transform = 'rotateY(0deg)'; virtualCoin.offsetHeight;
       const isHeads = getCryptoRandom() < 0.5; const targetRotation = isHeads ? 1440 : 1620;
-      virtualCoin.style.transition = 'transform 1s cubic-bezier(0.2, 0.85, 0.32, 1.2)'; 
-      virtualCoin.style.transform = `rotateY(${targetRotation}deg)`;
-      
-      setTimeout(() => { tossResultText.innerHTML = isHeads ? "🪙 <strong>HEADS!</strong>" : "🪙 <strong>TAILS!</strong>"; executeFlipBtn.disabled = false; }, 1000);
+      virtualCoin.style.transition = 'transform 1.4s cubic-bezier(0.2, 0.85, 0.32, 1.2)'; virtualCoin.style.transform = `rotateY(${targetRotation}deg)`;
+      setTimeout(() => { tossResultText.innerHTML = isHeads ? "🪙 <strong>HEADS!</strong>" : "🪙 <strong>TAILS!</strong>"; executeFlipBtn.disabled = false; }, 1400);
     });
     
     openProfilesBtn.addEventListener("click", () => { renderProfilesDirectory(); profilesModal.classList.add("active"); });
