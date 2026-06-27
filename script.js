@@ -62,11 +62,15 @@ async function splitTeamsViaAPI() {
     return; 
   }
 
-  // Show the Spinning Coin Loader Animation (Smooth CSS Transition)
   const loader = document.getElementById('coinLoaderModal');
+  const coin = loader ? loader.querySelector('.coin') : null;
+  
   if (loader) {
     loader.classList.add('active');
-    loader.querySelector('.coin').style.animation = "spin-coin-fast 0.6s linear infinite";
+    if (coin) {
+      coin.style.transition = "transform 1.5s cubic-bezier(0.4, 0, 0.2, 1)";
+      coin.style.transform = "rotateY(1080deg)";
+    }
   }
 
   const playerIds = activePlayers.map(p => p.id);
@@ -82,7 +86,7 @@ async function splitTeamsViaAPI() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ player_ids: playerIds })
       }),
-      new Promise(resolve => setTimeout(resolve, 1500)) // Force minimum 1.5s loader screen
+      new Promise(resolve => setTimeout(resolve, 1500)) 
     ]);
     
     if (!response.ok) throw new Error("Failed to split teams");
@@ -93,13 +97,19 @@ async function splitTeamsViaAPI() {
     
     if (loader) {
       loader.classList.remove('active');
-      loader.querySelector('.coin').style.animation = "none";
+      if(coin) {
+        coin.style.transition = "none";
+        coin.style.transform = "rotateY(0deg)";
+      }
     }
     goToStep(3);
   } catch (error) {
     if (loader) {
       loader.classList.remove('active');
-      loader.querySelector('.coin').style.animation = "none";
+      if(coin) {
+        coin.style.transition = "none";
+        coin.style.transform = "rotateY(0deg)";
+      }
     }
     console.error("Error splitting teams:", error);
     alert("Algorithm failed on the server.");
@@ -141,10 +151,7 @@ bottomReshuffleBtn.addEventListener("click", splitTeamsViaAPI);
 
 window.addEventListener("DOMContentLoaded", loadMasterPoolFromAPI);
 
-
-// --- 5. RENDER OVERLAP & RENAME LOGIC UPDATES ---
-
-// The renderTeam string strictly prevents overlapping by using full flexbox constraints
+// STRICTLY ALIGNED RENDER TEAM - Completely removed Role block and implemented structural classes
 function renderTeam(container, teamPlayers, captainId) {
   container.innerHTML = "";
   teamPlayers.forEach((player, index) => {
@@ -153,34 +160,28 @@ function renderTeam(container, teamPlayers, captainId) {
     const initial = player.name ? player.name.charAt(0) : "?"; 
     const imgName = "photos/" + escapeHtml(player.name.toLowerCase().trim()) + ".jpg";
     
-    const roleStr = player.role || "Batsman";
-    const roleClass = getRoleClass(roleStr);
-    
     const row = document.createElement("div");
     row.className = `team-player ${isCreator ? 'creator-glow-row' : ''} ${isCaptain ? 'captain-row' : ''}`;
     const captainLabel = isCaptain ? `<div class="captain-badge">👑 Captain</div>` : '';
     
     row.innerHTML = `
-      <div class="team-player-left" style="flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px;">
+      <div class="team-player-left">
         <div class="player-order-number">${index + 1}</div>
-        <div class="player-avatar" style="width:56px; height:56px; font-size:20px; margin:0; flex-shrink:0;">
+        <div class="player-avatar team-avatar">
           <span class="avatar-initial">${initial}</span>
           <img src="${imgName}" onerror="this.style.display='none'" class="avatar-image" alt="${initial}">
         </div>
-        <div style="display:flex; flex-direction:column; justify-content:center; flex: 1; min-width: 0;">
-          <span class="${isCreator ? 'creator-text-gradient' : ''}" style="font-weight:600; font-size:15px; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; width: 100%;">${escapeHtml(player.name)}</span>
+        <div class="team-player-info">
+          <span class="player-name-text ${isCreator ? 'creator-text-gradient' : ''}">${escapeHtml(player.name)}</span>
           ${captainLabel}
         </div>
-      </div>
-      <div class="team-player-right" style="flex-shrink: 0; margin-left: 10px;">
-        <span class="badge ${roleClass}">${roleStr}</span>
       </div>
     `;
     container.appendChild(row);
   });
 }
 
-// RESTORED LONG PRESS ACTIONS with Load, Rename, and Delete modals
+// RESTORED LONG PRESS ACTIONS
 function renderSavedMatches() {
   const savedList = JSON.parse(localStorage.getItem(storageKeySavedMatchesList) || "[]");
   const savedMatchesList = document.getElementById("savedMatchesList");
@@ -207,7 +208,6 @@ function renderSavedMatches() {
         const actionModal = document.getElementById('matchActionModal');
         actionModal.classList.add('active');
 
-        // Setup action buttons
         document.getElementById('actionRenameBtn').onclick = () => {
           actionModal.classList.remove('active');
           customPrompt("Rename Match", savedItem.title, (newName) => {
